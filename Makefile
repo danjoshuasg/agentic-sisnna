@@ -1,4 +1,4 @@
-# Makefile — PoC chatbot SISNNA. Ver SPEC.md §9.
+# Makefile — PoC chatbot SISNNA. Ver SPEC.md 9.
 PY ?= python3.13
 VENV := .venv
 BIN := $(VENV)/bin

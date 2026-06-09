@@ -1,4 +1,4 @@
-"""GraphRAG híbrido (ARCHITECTURE §5). Entrada vectorial → traversal → contexto.
+"""GraphRAG híbrido (ARCHITECTURE 5). Entrada vectorial → traversal → contexto.
 
 1. La query (des-identificada) se embebe → nodos semilla por similitud sobre las
    descripciones de nodo.

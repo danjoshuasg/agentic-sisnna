@@ -1,7 +1,7 @@
 # =============================================================================
 # ROUTING SET — eval del router / gating (MoE)
 # Cada caso: query → RouteDecision esperada (intencion, flujo, expertos, top-k).
-# Ver ARCHITECTURE-AGENTIC.md §3-§4.
+# Ver ARCHITECTURE-AGENTIC.md 3-4.
 #
 # Métrica (eval/run_eval.py):
 #   - routing_accuracy: el experto esperado está entre `expertos` que elige el router.

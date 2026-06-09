@@ -1,4 +1,4 @@
-"""FastAPI — PoC chatbot SISNNA (SPEC §9). Endpoints: /health /chat /audit.
+"""FastAPI — PoC chatbot SISNNA (SPEC 9). Endpoints: /health /chat /audit.
 
 /chat ejecuta el pipeline agentic completo (gateway PII → router → expertos →
 synthesizer → re-hidratación). /audit expone la cadena de acceso para el DPO.

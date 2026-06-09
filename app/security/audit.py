@@ -1,8 +1,8 @@
-"""Audit append-only con hash-chain (SPEC §7.2). Primitivo tamper-evident.
+"""Audit append-only con hash-chain (SPEC 7.2). Primitivo tamper-evident.
 
 Cada registro: hash = sha256(hash_prev || canonical(campos)). Romper un eslabón
 se detecta al re-verificar la cadena. NUNCA se loggea el valor real de PII
-(SPEC §11): `meta` lleva conteos/tokens/modelo, jamás el relato.
+(SPEC 11): `meta` lleva conteos/tokens/modelo, jamás el relato.
 
 Slice 0 lo usa para ingest. Slice 1 añade acciones ver/des_identificar/
 re_hidratar/egreso_llm/deteccion_pii sobre este mismo primitivo.

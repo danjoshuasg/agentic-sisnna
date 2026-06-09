@@ -1,4 +1,4 @@
-"""Reporte de evaluación consolidado (SPEC §14). `make eval`.
+"""Reporte de evaluación consolidado (SPEC 14). `make eval`.
 
 Corre las 4 capas y emite un reporte con gate de release:
   - PII no-leak (CRÍTICO, bloquea release si leak_count > 0)

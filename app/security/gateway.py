@@ -1,4 +1,4 @@
-"""Gateway de des-identificación PII (SPEC §7.1). Corre ANTES de cualquier
+"""Gateway de des-identificación PII (SPEC 7.1). Corre ANTES de cualquier
 embedding o LLM. Router y expertos ven solo tokens `[TIPO_N]`.
 
 Presidio (spaCy es) + reconocedores PE custom (DNI, teléfono +51, edad, fecha,

@@ -1,4 +1,4 @@
-"""Tests del primitivo audit hash-chain (SPEC §7.2) con conn en memoria."""
+"""Tests del primitivo audit hash-chain (SPEC 7.2) con conn en memoria."""
 
 from __future__ import annotations
 

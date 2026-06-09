@@ -1,4 +1,4 @@
-"""Pipeline agentic end-to-end (ARCHITECTURE §2). El núcleo que orquesta todo:
+"""Pipeline agentic end-to-end (ARCHITECTURE 2). El núcleo que orquesta todo:
 
   gateway PII → router → experto(s) → synthesizer → re-hidratación
   (transversal) audit append-only: detección PII, RouteDecision, expertos invocados.

@@ -2,7 +2,7 @@
 # ONTOLOGÍA del Knowledge Graph SISNNA
 # Define los TIPOS de nodo y arista (el meta-schema del grafo). Las instancias
 # (nodos/aristas concretos del dominio) van en kg/instances.yaml.
-# Ver ARCHITECTURE-AGENTIC.md §5.
+# Ver ARCHITECTURE-AGENTIC.md 5.
 # =============================================================================
 
 version: "1.0"
@@ -41,7 +41,7 @@ aristas:
   pertenece_a:      { de: Articulo,  a: NormaLegal }
 
 # --- Plantillas de traversal por intención del router ----------------------
-# Qué relaciones seguir y cuántos hops según la intención (context-skill, §6).
+# Qué relaciones seguir y cuántos hops según la intención (context-skill, 6).
 traversal:
   consulta_procedimiento: { relaciones: [tiene_etapa, produce, decision, deriva_a, tiene_plazo], hops: 2 }
   consulta_legal:         { relaciones: [fundamentado_en, definido_por, pertenece_a],            hops: 2 }

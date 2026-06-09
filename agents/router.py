@@ -1,4 +1,4 @@
-"""Router / gating del MoE (ARCHITECTURE §3). Primera llamada a Claude.
+"""Router / gating del MoE (ARCHITECTURE 3). Primera llamada a Claude.
 
 Corre DESPUÉS del gateway PII: opera sobre texto des-identificado (tokens), nunca
 PII real. Clasifica intención + flujo y selecciona expertos (top-k). `fuera_dominio`

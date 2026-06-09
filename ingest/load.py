@@ -1,4 +1,4 @@
-"""Upsert idempotente del corpus a pgvector (SPEC §6).
+"""Upsert idempotente del corpus a pgvector (SPEC 6).
 
 Idempotencia por `sha256` del documento: si el contenido no cambió, se salta.
 Si cambió, se borran sus chunks y se re-insertan. Registra cada ingest en el

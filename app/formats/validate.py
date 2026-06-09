@@ -1,4 +1,4 @@
-"""Validador de formatos — CI gate `make validate-formats` (FORMATS-SPEC §9).
+"""Validador de formatos — CI gate `make validate-formats` (FORMATS-SPEC 9).
 
 Por cada formats/*.yaml:
   1. valida contra _meta-schema.yaml (JSON Schema draft 2020-12, con format: date).

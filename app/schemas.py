@@ -1,4 +1,4 @@
-"""Schemas Pydantic de la API (SPEC §10)."""
+"""Schemas Pydantic de la API (SPEC 10)."""
 
 from __future__ import annotations
 

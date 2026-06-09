@@ -1,4 +1,4 @@
-"""Eval del router (ARCHITECTURE §10). Corre routing_set.yaml → métricas.
+"""Eval del router (ARCHITECTURE 10). Corre routing_set.yaml → métricas.
 
 routing_accuracy: el experto esperado está entre los elegidos.
 flujo_accuracy: el flujo coincide.

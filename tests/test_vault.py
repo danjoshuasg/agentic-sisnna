@@ -1,4 +1,4 @@
-"""Tests de la bóveda PII (SPEC §7.1): cifrado reversible + re-hidratación."""
+"""Tests de la bóveda PII (SPEC 7.1): cifrado reversible + re-hidratación."""
 
 from __future__ import annotations
 

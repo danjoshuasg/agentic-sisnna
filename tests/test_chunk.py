@@ -1,4 +1,4 @@
-"""Tests del chunker — anclas de heading, etapa, artículo (SPEC §6)."""
+"""Tests del chunker — anclas de heading, etapa, artículo (SPEC 6)."""
 
 from __future__ import annotations
 

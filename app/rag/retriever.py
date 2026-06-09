@@ -1,4 +1,4 @@
-"""Retriever vectorial — tool `vector_search` (ARCHITECTURE §2). top-k + filtros.
+"""Retriever vectorial — tool `vector_search` (ARCHITECTURE 2). top-k + filtros.
 
 Recupera chunks del corpus por similitud coseno (pgvector) con filtros opcionales
 de metadatos (flujo, tipo_doc). Devuelve cada chunk con su `source_path` y

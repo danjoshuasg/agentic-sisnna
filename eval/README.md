@@ -8,7 +8,7 @@ Conjuntos que `eval/run_eval.py` consume para verificar cada capa del sistema. T
 |---|---|---|
 | `gold_questions.yaml` | Copiloto operador (RAG / expertos) | `precision_citas`, `tasa_rechazo` |
 | `routing_set.yaml` | Router / gating (MoE) | `routing_accuracy`, `flujo_accuracy`, rechazo `fuera_dominio` |
-| `pii_noleak.yaml` | Gateway de des-identificación (SPEC §7) | `leak_count` = 0, `rehidratacion_ok` |
+| `pii_noleak.yaml` | Gateway de des-identificación (SPEC 7) | `leak_count` = 0, `rehidratacion_ok` |
 | `../mock/casos_sinteticos.yaml` | Triaje ciudadano + fuente de PII no-leak | `nivel`/`derivacion`/`tipologias` esperados |
 
 > El triaje no tiene archivo propio en `eval/`: su set son los 12 casos de `mock/casos_sinteticos.yaml`, que ya traen `triaje_esperado` y `pii_esperada`. Evita duplicar.

@@ -1,4 +1,4 @@
-"""Generación con citar-o-rehusar (SPEC §6, §12). Claude + salida estructurada.
+"""Generación con citar-o-rehusar (SPEC 6, 12). Claude + salida estructurada.
 
 El experto responde SOLO con base en el contexto (subgrafo KG + chunks). Cada
 afirmación cita su `source_path` + ancla (heading), copiados del contexto. Si el

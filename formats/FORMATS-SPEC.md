@@ -20,7 +20,7 @@ Fuente de los arquetipos reales: `CONTEXT/docs/` (transcripción del TDR SisDNA 
 2. **Single source of truth** — una definición por formato genera *todo*: validación de la instancia, especificación de llenado para el LLM, y el documento renderizado. No se duplica la estructura en tres lugares.
 3. **Versionado** — cada definición lleva `version` + `vigencia_desde`. El motor selecciona la versión vigente por fecha. Cada instancia llenada guarda con qué versión se generó (trazabilidad legal).
 4. **Meta-schema validado** — las definiciones YAML se validan contra un **meta-schema** (`_meta-schema.yaml`). Un analista puede editarlas con guardrails; un YAML mal formado se rechaza en CI antes de llegar a producción.
-5. **PII-aware** — cada campo declara `sensible` + `pii_tipo`. Esa marca es la **fuente de verdad del gateway de des-identificación** (`SPEC.md §7`): el gateway sabe qué tokenizar y el audit qué registrar a partir del formato, no de reglas paralelas.
+5. **PII-aware** — cada campo declara `sensible` + `pii_tipo`. Esa marca es la **fuente de verdad del gateway de des-identificación** (`SPEC.md 7`): el gateway sabe qué tokenizar y el audit qué registrar a partir del formato, no de reglas paralelas.
 6. **Separación contenido / forma / lógica** — contenido y wording en YAML; forma (layout) en un renderer genérico compartido (porque la forma casi no cambia) con override opcional por formato; lógica (validación, condicionales, versionado) en el motor.
 
 ---
@@ -84,7 +84,7 @@ Toda sección admite `visible_si` (condicional) — ej. el bloque "informante en
   label: "DNI"
   tipo: texto            # texto|texto_largo|entero|fecha|booleano|enum|enum_multi|adjunto
   requerido: false
-  sensible: true         # → gateway PII (SPEC §7)
+  sensible: true         # → gateway PII (SPEC 7)
   pii_tipo: DNI
   patron: '^\d{8}$'
   opciones: null         # lista para enum
@@ -112,7 +112,7 @@ Toda sección admite `visible_si` (condicional) — ej. el bloque "informante en
 Una sola definición alimenta tres salidas, sin duplicar estructura:
 
 1. **JSON Schema de instancia** — valida los datos llenados (tipos, requeridos, patrones, enums). Se usa en la API antes de persistir/renderizar.
-2. **Fill-spec para el LLM** — descripción compacta de qué campos llenar y sus reglas, para que el bot extraiga del relato (triaje) o asista al operador. Marca campos `sensible` para que el valor real **nunca** se mande al LLM (se trabaja sobre tokens, `SPEC §7`).
+2. **Fill-spec para el LLM** — descripción compacta de qué campos llenar y sus reglas, para que el bot extraiga del relato (triaje) o asista al operador. Marca campos `sensible` para que el valor real **nunca** se mande al LLM (se trabaja sobre tokens, `SPEC 7`).
 3. **Documento renderizado** — `markdown`/`html` (PDF en fase posterior). Fichas: renderer genérico que recorre secciones. Resoluciones: plantilla `prosa` (Jinja) con los slots interpolados.
 
 ```
@@ -129,7 +129,7 @@ formato.yaml ──┬─▶ to_json_schema()  → validación de instancia
 |---|---|---|
 | Ficha-checklist | `checklist` | (Anexo N°01 — pendiente; ver mock para signos) |
 | Ficha-tabla + datos | `tabla` + `grupo_campos` | **`anexo-02.yaml`** (tipologías × Riesgo/DF, ata con el triaje) |
-| Ficha-datos repetible/condicional | `grupo_campos` repetible + `visible_si` | (Formato N°01 — snippets en §4; def completa pendiente) |
+| Ficha-datos repetible/condicional | `grupo_campos` repetible + `visible_si` | (Formato N°01 — snippets en 4; def completa pendiente) |
 | Resolución-plantilla | `prosa` (Jinja) | **`resolucion-04.yaml`** (VISTO/CONSIDERANDO/SE RESUELVE) |
 
 ---
@@ -149,7 +149,7 @@ Flujo cuando una RM/DS cambia el contenido (no la forma):
 
 ## 8. Integración con el chatbot y el gateway PII
 
-- **Gateway PII (`SPEC §7`):** la política de qué tokenizar se **deriva** de los campos `sensible: true` del registro de formatos. Una sola fuente; nada de listas de PII paralelas que se desincronizan.
+- **Gateway PII (`SPEC 7`):** la política de qué tokenizar se **deriva** de los campos `sensible: true` del registro de formatos. Una sola fuente; nada de listas de PII paralelas que se desincronizan.
 - **Copiloto operador:** responde "¿qué campos lleva el Formato N°01?" / "¿qué tipologías están en el Anexo N°02?" leyendo el registro (y opcionalmente vectorizándolo en el corpus).
 - **Triaje ciudadano:** mapea lo extraído del relato al `anexo-02.yaml` (tipologías + valoración global) → produce el `TriajeResult` ya alineado al instrumento oficial.
 - **PoC hermano (`poc/DESIGN.md`):** el mismo registro alimenta la generación de resoluciones firmadas. El registro es **cross-PoC**.
@@ -194,8 +194,8 @@ El motor que consume esto vive en `app/formats/` (loader + validador + renderer 
 
 Esta especificación **extiende** `SPEC.md`:
 - Añade el módulo `formats/` y `app/formats/` a la estructura.
-- El gateway PII (`§7`) consume los flags `sensible` de aquí.
-- El triaje (`§8`) produce su salida alineada a `anexo-02.yaml`.
+- El gateway PII (`7`) consume los flags `sensible` de aquí.
+- El triaje (`8`) produce su salida alineada a `anexo-02.yaml`.
 - Añade `make validate-formats` a los comandos y a la suite de pruebas.
 
-Pendiente de confirmar antes de avanzar con `eval/gold_questions.yaml`: §11.1 (target render) y §11.3 (gramática condicional).
+Pendiente de confirmar antes de avanzar con `eval/gold_questions.yaml`: 11.1 (target render) y 11.3 (gramática condicional).

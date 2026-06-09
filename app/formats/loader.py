@@ -1,4 +1,4 @@
-"""Carga de definiciones de formato (formats/*.yaml). FORMATS-SPEC §5.
+"""Carga de definiciones de formato (formats/*.yaml). FORMATS-SPEC 5.
 
 Responsabilidad: localizar y parsear los YAML. La validación contra el
 meta-schema vive en validate.py; las proyecciones (json_schema/fill_spec/render)

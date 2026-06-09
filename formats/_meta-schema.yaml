@@ -3,7 +3,7 @@
 # =============================================================================
 # Expresado como JSON Schema (draft 2020-12) en YAML. El loader valida cada
 # definición contra esto en `make validate-formats` (CI gate).
-# Ver FORMATS-SPEC.md §4 para la explicación en prosa.
+# Ver FORMATS-SPEC.md 4 para la explicación en prosa.
 # =============================================================================
 
 $schema: "https://json-schema.org/draft/2020-12/schema"
@@ -122,7 +122,7 @@ $defs:
       label: { type: [string, "null"] }
       tipo: { enum: [texto, texto_largo, entero, fecha, booleano, enum, enum_multi, adjunto] }
       requerido: { type: boolean, default: false }
-      sensible: { type: boolean, default: false }     # → gateway PII (SPEC §7)
+      sensible: { type: boolean, default: false }     # → gateway PII (SPEC 7)
       pii_tipo: { $ref: "#/$defs/pii_tipo" }
       patron: { type: [string, "null"] }              # regex
       opciones:                                       # para enum / enum_multi

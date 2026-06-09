@@ -1,4 +1,4 @@
-"""Cliente CLI del PoC SISNNA (SPEC §9). Conversa contra la API /chat.
+"""Cliente CLI del PoC SISNNA (SPEC 9). Conversa contra la API /chat.
 
 Uso:
   python -m cli.chat                          # modo interactivo (operador)

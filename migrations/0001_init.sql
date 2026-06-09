@@ -1,9 +1,9 @@
 -- =============================================================================
--- Migración inicial — schema PoC SISNNA (SPEC §6 + ARCHITECTURE-AGENTIC §5 + audit ampliado)
+-- Migración inicial — schema PoC SISNNA (SPEC 6 + ARCHITECTURE-AGENTIC 5 + audit ampliado)
 -- Idempotente: create ... if not exists. Embeddings dim 1024 (multilingual-e5-large).
 -- =============================================================================
 
-CREATE EXTENSION IF NOT EXISTS vector;          -- pgvector (verificar en Insforge — PLAN §1.1)
+CREATE EXTENSION IF NOT EXISTS vector;          -- pgvector (verificar en Insforge — PLAN 1.1)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;        -- gen_random_uuid
 
 -- --- Corpus ------------------------------------------------------------------
@@ -33,30 +33,30 @@ CREATE TABLE IF NOT EXISTS chunk (
 CREATE INDEX IF NOT EXISTS chunk_flujo_idx ON chunk (flujo);
 CREATE INDEX IF NOT EXISTS chunk_embedding_idx ON chunk USING hnsw (embedding vector_cosine_ops);
 
--- --- Bóveda PII reversible (SPEC §7.1) --------------------------------------
+-- --- Bóveda PII reversible (SPEC 7.1) --------------------------------------
 CREATE TABLE IF NOT EXISTS token_vault (
     token         TEXT PRIMARY KEY,              -- [NOMBRE_1], [DNI_2]
     valor_cifrado TEXT NOT NULL,                 -- Fernet(valor_real) base64, VAULT_KEY en .env
     tipo_pii      TEXT NOT NULL,                 -- NOMBRE_NNA, DNI, ...
-    request_id    TEXT NOT NULL,                 -- token estable POR request (SPEC §7.1)
+    request_id    TEXT NOT NULL,                 -- token estable POR request (SPEC 7.1)
     creado_en     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS token_vault_request_idx ON token_vault (request_id);
 
--- --- Audit append-only hash-chain (SPEC §7.2, ampliado: egreso + detecciones) -
+-- --- Audit append-only hash-chain (SPEC 7.2, ampliado: egreso + detecciones) -
 CREATE TABLE IF NOT EXISTS access_log (
     id         BIGSERIAL PRIMARY KEY,
     actor_id   TEXT NOT NULL,
     accion     TEXT NOT NULL,                    -- ver | des_identificar | re_hidratar | egreso_llm | deteccion_pii | ingest | route
     entidad    TEXT,                             -- chunk | token | documento | route_decision
     entidad_id TEXT,
-    meta       JSONB,                            -- nº detecciones, modelo, expertos... NUNCA valor real (SPEC §11)
+    meta       JSONB,                            -- nº detecciones, modelo, expertos... NUNCA valor real (SPEC 11)
     ts         TIMESTAMPTZ NOT NULL DEFAULT now(),
     hash_prev  TEXT,
     hash       TEXT NOT NULL                     -- sha256(hash_prev || campos) — tamper-evident
 );
 
--- --- Knowledge Graph (ARCHITECTURE §5) --------------------------------------
+-- --- Knowledge Graph (ARCHITECTURE 5) --------------------------------------
 CREATE TABLE IF NOT EXISTS kg_node (
     id          TEXT PRIMARY KEY,                -- "Etapa:rdf_valoracion"
     tipo        TEXT NOT NULL,                   -- Flujo | Etapa | Artefacto | ... (ontology.yaml)

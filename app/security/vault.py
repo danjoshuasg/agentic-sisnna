@@ -1,4 +1,4 @@
-"""Bóveda de tokens PII reversible (SPEC §7.1).
+"""Bóveda de tokens PII reversible (SPEC 7.1).
 
 token ↔ valor real, cifrado con Fernet (VAULT_KEY en .env, fuera del repo). El
 valor real NUNCA sale del perímetro: solo viaja el token `[TIPO_N]`. La

@@ -1,4 +1,4 @@
-"""Store del Knowledge Graph — kg_node / kg_edge + traversal CTE (ARCHITECTURE §5).
+"""Store del Knowledge Graph — kg_node / kg_edge + traversal CTE (ARCHITECTURE 5).
 
 Carga kg/instances.yaml (validado contra kg/ontology.yaml), embebe la descripción
 de cada nodo (entrada GraphRAG) y persiste en Insforge. Traversal = CTE recursivo
@@ -26,7 +26,7 @@ def load_ontology(path: Path = ONTOLOGY_PATH) -> dict[str, Any]:
 
 
 def traversal_template(intencion: str) -> dict[str, Any]:
-    """Relaciones + hops a seguir según la intención (context-skill, §6)."""
+    """Relaciones + hops a seguir según la intención (context-skill, 6)."""
     trav = load_ontology().get("traversal", {})
     return trav.get(intencion, {"relaciones": [], "hops": 1})
 

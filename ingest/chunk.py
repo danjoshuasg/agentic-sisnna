@@ -1,4 +1,4 @@
-"""Chunking con anclas de heading/artículo (SPEC §6).
+"""Chunking con anclas de heading/artículo (SPEC 6).
 
 Estrategia: dividir el markdown por encabezados (H1..H4) en secciones; cada
 sección es un chunk con su `heading_path`. Secciones largas se parten por

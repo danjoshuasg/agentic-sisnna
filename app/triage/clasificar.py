@@ -1,4 +1,4 @@
-"""Triaje ciudadano (SPEC §8). Relato des-identificado → TriajeResult estructurado.
+"""Triaje ciudadano (SPEC 8). Relato des-identificado → TriajeResult estructurado.
 
 El relato YA pasó el gateway PII (tokens, no PII real). Mapea contra signos (Anexo
 N°01) y tipologías (Anexo N°02), clasifica nivel + derivación, con regla de

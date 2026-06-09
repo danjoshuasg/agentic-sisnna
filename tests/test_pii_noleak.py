@@ -1,4 +1,4 @@
-"""Suite crítica de no-fuga PII (SPEC §7, §14). Bloquea release.
+"""Suite crítica de no-fuga PII (SPEC 7, 14). Bloquea release.
 
 leak_count debe ser 0: ningún valor real de PII aparece en el texto des-
 identificado (el payload que saldría al embedder/LLM). Fuentes: 12 casos mock +

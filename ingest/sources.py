@@ -1,6 +1,6 @@
-"""Registro del corpus público (SPEC §5). Allowlist explícita — NO glob ciego.
+"""Registro del corpus público (SPEC 5). Allowlist explícita — NO glob ciego.
 
-Excluido a propósito (SPEC §5 gap, §11): leyes íntegras, brechas-seguridad,
+Excluido a propósito (SPEC 5 gap, 11): leyes íntegras, brechas-seguridad,
 fuentes, intentos-estado, índices, binarios. El bot cita artículos solo donde
 los flujo.md los referencian inline; fuera de eso → rehúsa.
 """

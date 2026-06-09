@@ -1,4 +1,4 @@
-"""Synthesizer del MoE (ARCHITECTURE §2). Fusiona respuestas de top-k expertos.
+"""Synthesizer del MoE (ARCHITECTURE 2). Fusiona respuestas de top-k expertos.
 
 Reglas: si TODOS rehúsan → rehúsa. Si solo uno responde → esa respuesta (citas
 deduplicadas). Si ≥2 responden → fusión LLM en una respuesta coherente, sin

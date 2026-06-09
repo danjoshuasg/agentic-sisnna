@@ -2,7 +2,7 @@
 # REGISTRO DE EXPERTOS (Mixture of Experts, nivel aplicación)
 # Config como dato: el router despacha a estos expertos. Cada uno declara su
 # ámbito, herramientas, filtro de corpus/KG y referencia de prompt.
-# Ver ARCHITECTURE-AGENTIC.md §4.
+# Ver ARCHITECTURE-AGENTIC.md 4.
 # =============================================================================
 
 version: "1.0"
@@ -13,7 +13,7 @@ version: "1.0"
 #   formats_lookup -> lee el registro de formatos (formats/*.yaml)
 #   plazo_calc     -> motor de plazos (vencimientos, días hábiles)
 
-# Invariantes heredadas (SPEC §12): citar siempre o rehusar; nunca inventar
+# Invariantes heredadas (SPEC 12): citar siempre o rehusar; nunca inventar
 # plazos/artículos/campos; operar solo sobre tokens (nunca PII real).
 
 expertos:
@@ -49,7 +49,7 @@ expertos:
     desc: "Citas y fundamento legal: DL 1297, reglamento, leyes, RMs."
     tools: [kg_query, vector_search]
     scope_kg: [NormaLegal, Articulo, Artefacto, Plazo]
-    scope_corpus: { tipo_doc: [resumen, ficha] }   # corpus legal íntegro = SPEC §11 (gap)
+    scope_corpus: { tipo_doc: [resumen, ficha] }   # corpus legal íntegro = SPEC 11 (gap)
     prompt_ref: prompts/experto_legal.md
     regla: "Si la pregunta legal excede las citas inline del corpus → rehusar (no inventar artículos)."
 
@@ -68,7 +68,7 @@ expertos:
     scope_kg: [NormaLegal, Plazo, Medida]
     scope_corpus: { flujo: [rdf, df] }
     prompt_ref: prompts/experto_compliance.md
-    regla: "Brechas/Ley 29733 no están en el corpus inicial (SPEC §11) → rehusar lo no soportado."
+    regla: "Brechas/Ley 29733 no están en el corpus inicial (SPEC 11) → rehusar lo no soportado."
 
 # Política de routing (referencia; lógica en agents/router.py)
 routing:

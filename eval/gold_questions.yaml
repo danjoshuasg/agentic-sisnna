@@ -159,7 +159,7 @@ preguntas:
     flujo: indeterminado
     pregunta: "Transcríbeme textualmente el artículo 5 del DL 1297."
     debe_rehusar: true
-    motivo: "El texto íntegro de la ley no está en el corpus inicial (SPEC §11). Solo citas inline."
+    motivo: "El texto íntegro de la ley no está en el corpus inicial (SPEC 11). Solo citas inline."
 
   - id: gq-r03
     persona: operador
@@ -175,7 +175,7 @@ preguntas:
     flujo: indeterminado
     pregunta: "¿Cómo configuro la integración con FIRMA PERÚ paso a paso?"
     debe_rehusar: true
-    motivo: "Fuera de dominio (integraciones reales están fuera del PoC, SPEC §3)."
+    motivo: "Fuera de dominio (integraciones reales están fuera del PoC, SPEC 3)."
 
   - id: gq-r05
     persona: operador

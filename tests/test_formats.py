@@ -1,4 +1,4 @@
-"""Tests del validador de formatos (FORMATS-SPEC §9)."""
+"""Tests del validador de formatos (FORMATS-SPEC 9)."""
 
 from __future__ import annotations
 

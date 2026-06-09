@@ -102,7 +102,7 @@ make eval-pipeline   # synthesizer k=2 + audit end-to-end
 Resultados de referencia: PII no-leak **leak_count=0**; routing_accuracy 0.92 / flujo 1.00 / rechazo 1.00;
 gold de expertos **accuracy=1.00**; triaje nivel/derivación **1.00**, no_leak **1.00**.
 
-## Invariantes (SPEC §12-13, no negociables)
+## Invariantes (SPEC 12-13, no negociables)
 
 - Gateway PII **antes** de cualquier embedding/LLM. Router y expertos operan sobre tokens. Re-hidratación al final.
 - **Citar siempre o rehusar.** Nunca inventar plazos, artículos, resoluciones ni campos.

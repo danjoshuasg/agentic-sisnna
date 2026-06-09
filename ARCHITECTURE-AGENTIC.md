@@ -1,7 +1,7 @@
 # SPEC — Capa agentic: Mixture of Experts (router) + Knowledge Graph
 
-> Especificación de arquitectura complementaria a `SPEC.md`. **Reemplaza el RAG plano de `SPEC.md §6`** por un sistema **GraphRAG + MoE agentic**: un router despacha cada consulta a expertos especializados, que razonan sobre un **grafo de conocimiento** del SISNNA + recuperación vectorial.
-> Consume: corpus (`SPEC §5`), formatos (`formats/FORMATS-SPEC.md`), gateway PII (`SPEC §7`).
+> Especificación de arquitectura complementaria a `SPEC.md`. **Reemplaza el RAG plano de `SPEC.md 6`** por un sistema **GraphRAG + MoE agentic**: un router despacha cada consulta a expertos especializados, que razonan sobre un **grafo de conocimiento** del SISNNA + recuperación vectorial.
+> Consume: corpus (`SPEC 5`), formatos (`formats/FORMATS-SPEC.md`), gateway PII (`SPEC 7`).
 
 ---
 
@@ -10,7 +10,7 @@
 | Pregunta | Decisión |
 |---|---|
 | ¿Qué es "MoE" aquí? | **Router agentic de expertos** (mixture-of-experts a nivel de aplicación, no de pesos del modelo). |
-| Alcance en el PoC | **Build completo** — router + todos los expertos + KG. Estructurado en slices (§12). |
+| Alcance en el PoC | **Build completo** — router + todos los expertos + KG. Estructurado en slices (12). |
 | Árbol de conocimiento / context-skill | **Knowledge Graph explícito** (entidades + relaciones) encima del corpus. |
 
 **Nota de costo/riesgo (aceptada por el usuario):** el build completo eleva la superficie de fallo de un PoC. Mitigación: slices incrementales (router + 2 expertos antes de los 6), cada uno verificable; el grafo se autora declarativamente (corpus pequeño y curado), no se extrae con NLP frágil.
@@ -23,7 +23,7 @@
                       mensaje de usuario (persona)
                                 │
                     ┌───────────▼───────────┐
-                    │  GATEWAY PII (SPEC §7) │   tokeniza PII ANTES de todo
+                    │  GATEWAY PII (SPEC 7) │   tokeniza PII ANTES de todo
                     └───────────┬───────────┘   (router y expertos ven solo tokens)
                                 │ texto des-identificado
                     ┌───────────▼───────────┐
@@ -67,7 +67,7 @@ Función de gating del MoE. Corre **después** del gateway PII (opera sobre toke
   )
   ```
 - **Política top-k:** k=1 por defecto. k=2 cuando `confianza` baja o `flujo == "ambos"` (ej. transición RDF→DF, derivación DEMUNA→UPE). El synthesizer fusiona.
-- **Implementación:** LLM gating con salida estructurada (Claude, barato y flexible). Alternativa: router por embeddings (nearest-expert) — §13.
+- **Implementación:** LLM gating con salida estructurada (Claude, barato y flexible). Alternativa: router por embeddings (nearest-expert) — 13.
 - **`fuera_dominio` → rehúsa** sin invocar expertos (no quema tokens ni alucina).
 
 ---
@@ -85,7 +85,7 @@ Registro declarativo en `agents/experts.yaml` (config como dato). Cada experto =
 | `formatos` | operador | Qué campos/artefactos lleva una etapa; estructura de fichas/resoluciones | formats_lookup, kg_query | Artefacto + registro `formats/` |
 | `compliance` | ambos | Manejo de dato sensible, plazos, brechas; "¿puedo compartir esto?" | kg_query, vector_search, plazo_calc | NormaLegal (29733), Plazo, Medida |
 
-Reglas comunes a todo experto (heredan de `SPEC §12`): **citar siempre o rehusar**; nunca inventar plazos/artículos/campos; trabajar sobre tokens, nunca PII real.
+Reglas comunes a todo experto (heredan de `SPEC 12`): **citar siempre o rehusar**; nunca inventar plazos/artículos/campos; trabajar sobre tokens, nunca PII real.
 
 ---
 
@@ -118,7 +118,7 @@ Articulo   -pertenece_a->        NormaLegal
 ### Fuente y construcción
 
 - **Autoría declarativa**, no extracción NLP: el corpus es pequeño y curado (`CONTEXT/`). Los nodos/aristas se escriben en YAML (`kg/ontology.yaml` + `kg/instances.yaml`), validados contra el meta-schema de la ontología. Trazable a la fuente (`source_path` por nodo).
-- **Store:** tablas `kg_node` / `kg_edge` en Postgres (Insforge), traversal con CTE recursivo. Single datastore, alinea con el corpus vectorial. *(Neo4j = §13 si la complejidad de queries lo justifica.)*
+- **Store:** tablas `kg_node` / `kg_edge` en Postgres (Insforge), traversal con CTE recursivo. Single datastore, alinea con el corpus vectorial. *(Neo4j = 13 si la complejidad de queries lo justifica.)*
 
 ### GraphRAG híbrido
 
@@ -141,10 +141,10 @@ El "context-skill" es la política que decide **qué subgrafo cargar** por query
 
 ## 7. Integración con capas existentes
 
-- **Gateway PII (`SPEC §7`):** corre **antes** del router. Router y expertos ven solo tokens. Re-hidratación tras el synthesizer. Las queries al KG son estructurales (sin PII).
+- **Gateway PII (`SPEC 7`):** corre **antes** del router. Router y expertos ven solo tokens. Re-hidratación tras el synthesizer. Las queries al KG son estructurales (sin PII).
 - **Formatos (`FORMATS-SPEC.md`):** el experto `formatos` usa `formats_lookup`; los nodos `Artefacto` del KG referencian las definiciones `formats/*.yaml`.
 - **Citar-o-rehusar:** se mantiene como invariante en cada experto y en el synthesizer.
-- **Audit (`SPEC §7.2`):** se extiende para registrar la `RouteDecision` y los expertos invocados (qué experto vio qué subgrafo).
+- **Audit (`SPEC 7.2`):** se extiende para registrar la `RouteDecision` y los expertos invocados (qué experto vio qué subgrafo).
 
 ---
 
@@ -161,7 +161,7 @@ Prior art propio: `brain/30-components/cross-cutting/multi-agent-orchestration-p
 
 ---
 
-## 9. Estructura de archivos (adiciones a `SPEC §10`)
+## 9. Estructura de archivos (adiciones a `SPEC 10`)
 
 ```
 poc-chatbot/
@@ -182,7 +182,7 @@ poc-chatbot/
 
 ---
 
-## 10. Pruebas (adiciones a `SPEC §14`)
+## 10. Pruebas (adiciones a `SPEC 14`)
 
 - **Routing accuracy:** set etiquetado de consultas → `intencion`/`flujo`/`expertos` esperados.
 - **KG traversal:** queries estructurales con subgrafo esperado (ej. "plazo evaluación RDF" → nodo `Plazo:5dh` vía `Etapa:evaluacion -tiene_plazo->`).
@@ -217,6 +217,6 @@ Cada slice se prueba antes de avanzar.
 
 ## 13. Relación con `SPEC.md`
 
-- **Reemplaza `§6` (RAG plano)** por GraphRAG + MoE. El retriever vectorial queda como **tool** (`vector_search`), no como el core.
-- Mantiene intactos: gateway PII (§7), corpus (§5), formatos, citar-o-rehusar, audit, solo-sintético.
+- **Reemplaza `6` (RAG plano)** por GraphRAG + MoE. El retriever vectorial queda como **tool** (`vector_search`), no como el core.
+- Mantiene intactos: gateway PII (7), corpus (5), formatos, citar-o-rehusar, audit, solo-sintético.
 - Añade módulos `agents/` y `kg/` y sus comandos/pruebas.

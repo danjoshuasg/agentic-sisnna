@@ -1,4 +1,4 @@
-"""Runner de expertos (ARCHITECTURE §4). Carga experts.yaml → ejecuta un experto.
+"""Runner de expertos (ARCHITECTURE 4). Carga experts.yaml → ejecuta un experto.
 
 GraphRAG híbrido: ensambla contexto (subgrafo KG por intención + chunks del corpus
 filtrados por el scope del experto) y genera con citar-o-rehusar. El triaje delega

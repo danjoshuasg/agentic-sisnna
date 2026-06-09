@@ -1,4 +1,4 @@
-"""Enum canónico de tipos PII — fuente única (SPEC §7, FORMATS-SPEC §9).
+"""Enum canónico de tipos PII — fuente única (SPEC 7, FORMATS-SPEC 9).
 
 El gateway (Slice 1) y el meta-schema de formatos deben coincidir con esta lista.
 `make validate-formats` cruza cada `pii_tipo` de formats/*.yaml contra este enum.

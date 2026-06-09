@@ -1,5 +1,5 @@
 # =============================================================================
-# PII NO-LEAK — suite crítica de no-fuga (gateway de des-identificación, SPEC §7)
+# PII NO-LEAK — suite crítica de no-fuga (gateway de des-identificación, SPEC 7)
 # Verifica que NINGÚN valor real de PII salga en el payload hacia el LLM
 # (ni en query de embedding ni en generación). Bloquea release si falla.
 #
@@ -45,4 +45,4 @@ casos_adversariales:
 reglas:
   - "El payload de egreso (a embedding y a generación) contiene 0 valores de no_debe_aparecer."
   - "Cada PII detectada se sustituye por un token estable dentro del request."
-  - "La bóveda permite re-hidratar; el valor real nunca se loggea (SPEC §12)."
+  - "La bóveda permite re-hidratar; el valor real nunca se loggea (SPEC 12)."

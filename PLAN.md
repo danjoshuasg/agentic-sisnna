@@ -43,8 +43,8 @@
    Sin entrenamiento ni fine-tuning: solo inferencia. Verificado: dim 1024, recupera chunk correcto.
 3. **Telemetría ampliada.** `access_log` registra acceso sensible **+ egreso-LLM + detecciones-PII** (sin valor real).
 4. **Deploy A5 = Insforge `compute deploy`** (contenedor propio FastAPI+modelo, al lado de la DB). Caveat: `VAULT_KEY`
-   en cloud solo aceptable para PoC sintético; producción → perímetro PE (SPEC §7.3). No ejecutar hasta A5.
-5. **Orden de slices confirmado** (§2).
+   en cloud solo aceptable para PoC sintético; producción → perímetro PE (SPEC 7.3). No ejecutar hasta A5.
+5. **Orden de slices confirmado** (2).
 
 ### Estado de ejecución
 - **Slice 0 — COMPLETO** (contra Insforge real). 6 tablas + pgvector + 203 chunks (rdf 154/df 17/comun 32, 27 docs,
@@ -70,7 +70,7 @@
   **routing_accuracy=0.92, flujo_accuracy=1.00, rechazo_fuera_dominio=1.00, k2=0.67** sobre 13 casos. El único
   miss (rt-009) es ambigüedad genuina (legal+copiloto_rdf vs legal+copiloto_df en comparación riesgo-vs-DF, ambos
   válidos; el synthesizer fusiona k=2 igual). Reconciliada inconsistencia repo: `flujo=comun` (eval/formatos) no
-  estaba en el enum de ARCHITECTURE §3 → añadido. `make eval-routing`. Tests 47/47.
+  estaba en el enum de ARCHITECTURE 3 → añadido. `make eval-routing`. Tests 47/47.
 - **Slice A2 — Expertos triaje + copiloto_rdf COMPLETO.** `app/rag/{retriever,generate}.py` (vector_search con
   filtros + generación citar-o-rehusar con filtro anti-alucinación de citas), `agents/experts.py` (runner GraphRAG
   híbrido: subgrafo KG por intención + chunks del scope del experto), `agents/prompts/experto_{rdf,triaje}.md`,
@@ -85,7 +85,7 @@
 - **Slice A3 — Expertos df/legal/formatos/compliance + KG DF COMPLETO.** `kg/instances.yaml` extendido con el
   flujo DF (Flujo:df + 10 etapas + plazos Arts 41/42-47/66/68/99-102 + Ley 32017 18m + medidas acogimiento +
   compuertas + Arts dl1297_52/reg_41/66/67/68 + actores UPE/CAR/Banco/Adopción) → **92 nodos, 100 aristas**,
-  validado. `agents/prompts/experto_{df,legal,formatos,compliance}.md` (límites de rechazo SPEC §11 explícitos).
+  validado. `agents/prompts/experto_{df,legal,formatos,compliance}.md` (límites de rechazo SPEC 11 explícitos).
   Runner genérico de A2 reusado sin cambios. `eval/expert_eval.py` extendido a `gold()`:
   **accuracy=1.00** (copiloto_rdf/df/formatos/legal/compliance todos 1.00; gq-r01/r02 rehúsan). Triaje sigue
   nivel/derivacion=1.00, no_leak=1.00. Tests 55/55.
@@ -106,7 +106,7 @@
 
 ---
 
-## 2. Orden de slices (merge SPEC §15 + ARCHITECTURE §12)
+## 2. Orden de slices (merge SPEC 15 + ARCHITECTURE 12)
 
 ```
 Slice 0  → Infra (Insforge link + migraciones + ingest + validate-formats)
@@ -133,7 +133,7 @@ psycopg/asyncpg, pgvector, presidio-analyzer/anonymizer, jinja2, pyyaml, cryptog
 `Makefile`, `.env.example`, `migrations/0001_init.sql` (tablas: `documento`, `chunk(embedding vector(1024))`,
 `token_vault`, `access_log`, `kg_node`, `kg_edge`), `app/db.py`, `ingest/{sources,chunk,embed,load}.py`,
 `app/formats/{loader,validate}.py`, `make validate-formats`.
-**Corpus → chunks:** registry en `ingest/sources.py` con metadatos por §5 (flujo/etapa/articulo/artefacto/tipo_doc).
+**Corpus → chunks:** registry en `ingest/sources.py` con metadatos por 5 (flujo/etapa/articulo/artefacto/tipo_doc).
 Chunking con anclas de heading/artículo. Upsert idempotente por `sha256`.
 **Verificación:** `make validate-formats` pasa; `make ingest` siembra; `/health` reporta N chunks por flujo
 (rdf/df/formatos). `make migrate` crea las 6 tablas.
@@ -176,7 +176,7 @@ No-fuga vigente (payload a experto sin PII real).
 con el flujo DF (acogimiento, fase judicial, medidas, adoptabilidad). Formatos pendientes que los gold
 necesiten (`formato-01.yaml`, `anexo-01.yaml`, etc.) según gq-012/013.
 **Verificación:** gold_questions gq-007..014 + gq-r01/r02. Triaje mock casos 007-010 (UPE_DF). `legal`/`compliance`
-rehúsan lo fuera de corpus (SPEC §11).
+rehúsan lo fuera de corpus (SPEC 11).
 
 ### Slice A4 — Synthesizer
 **Crear:** `agents/synthesizer.py` (fusión top-k, dedup de citas, citar-o-rehusar; si ambos expertos rehúsan
@@ -191,7 +191,7 @@ CLI). Pipeline real: gateway PII → router → experto(s) → synthesizer → r
 
 ---
 
-## 4. Invariantes que el código respeta en cada slice (SPEC §12-13, no negociables)
+## 4. Invariantes que el código respeta en cada slice (SPEC 12-13, no negociables)
 - Gateway PII ANTES de cualquier embedding/LLM. Router y expertos sobre TOKENS. Re-hidratación al final.
 - Citar siempre o rehusar. Nunca inventar plazos/artículos/resoluciones/campos.
 - Solo data sintética (`mock/casos_sinteticos.yaml`). CERO datos reales NNA.
