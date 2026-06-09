@@ -15,6 +15,29 @@ NNA frente a la API externa del LLM**.
 > impide la fuga de PII y telemetría de acceso, es lo bastante fiable y auditable para un dominio NNA — y por
 > tanto para cualquier sector regulado.
 
+## ¿Por qué no basta con "subir los PDF a un ChatGPT"?
+
+La forma tradicional —pegar los documentos en ChatGPT (u otro asistente genérico) y preguntarle— **falla justo en lo
+que un dominio sensible exige**. Cada feature de esta arquitectura ataca una de esas fallas:
+
+| Dimensión | ChatGPT tradicional (subir PDFs / RAG plano) | **Este sistema** (agentic GraphRAG + MoE + gateway PII) |
+|---|---|---|
+| **Dato sensible de NNA** | El relato con nombre, DNI y dirección **viaja en claro** a una API externa (fuera de Perú) | **Tokenizado antes de salir**: el LLM solo ve `[NOMBRE_1]`; nunca el dato real. Re-hidratación local. Fuga verificada = **0** |
+| **Alucinación** | Puede **inventar** un plazo, un artículo o una resolución con tono seguro | **Cita o rehúsa**: "no está en el corpus". Filtro anti-alucinación descarta citas no respaldadas |
+| **Fuentes** | Difusas o inventadas; difícil saber de dónde salió la respuesta | Cada afirmación con su **fuente + sección** verificable contra el corpus |
+| **Estructura del procedimiento** | Texto plano: pierde derivaciones, compuertas y plazos del flujo | **Knowledge Graph**: etapas, plazos, derivaciones y qué resolución toca, como datos estructurados |
+| **Roles** | Un prompt genérico para todo | **MoE**: un router despacha a un experto por rol (operador / ciudadano) y por flujo (RDF / DF) |
+| **Salida** | Prosa libre, no integrable | **Estructurada** (triaje: nivel / derivación / tipologías) → conectable a otros sistemas |
+| **Auditoría** | Ninguna — no hay registro de qué dato se accedió | **Log append-only encadenado (hash-chain)** + endpoint `/audit` para el DPO |
+| **Cumplimiento legal** (Ley 29733 · DS 016-2024-JUS) | **Incumple**: PII de un menor vulnerable a un tercero externo | Diseñado para cumplir; en producción la bóveda de PII vive en perímetro PE |
+| **Costo de vectorizar** | API de embeddings: manda el corpus afuera y cobra | **Local** ($0, sin API-key, el corpus no sale) |
+| **Versionado de fuentes** | No: lo que subiste, sin control | Corpus curado + **formatos como dato versionado** (cambian sin tocar código) |
+
+**Lo que esto significa en una frase:** en un dominio NNA, mandar el relato de un niño con su nombre a una API
+externa es inaceptable bajo la Ley 29733, y un asistente que **inventa** un plazo o una resolución es peor que no
+tener asistente. Esta arquitectura existe para que el sistema sea **a la vez útil, no-filtrante y auditable** — el
+mínimo para operar sobre dato sensible de un sujeto vulnerable, y por extensión sobre cualquier sector regulado.
+
 ## Arquitectura (pipeline de una consulta)
 
 ```
