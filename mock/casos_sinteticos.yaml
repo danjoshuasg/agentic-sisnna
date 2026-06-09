@@ -1,0 +1,295 @@
+# =============================================================================
+# DATA MOCK — Casos sintéticos SISNNA (RDF / DF)
+# =============================================================================
+# TODOS LOS DATOS SON SINTÉTICOS. Nombres, DNI, direcciones y teléfonos son
+# inventados y NO corresponden a personas reales. Uso exclusivo de la PoC.
+#
+# Doble propósito:
+#   1) Eval de triaje (persona ciudadano): nivel + derivación + tipologías.
+#   2) Suite de no-fuga de PII: `pii_esperada` lista la PII que el gateway
+#      DEBE tokenizar antes de enviar el relato al LLM (cero valores reales
+#      en el payload de egreso).
+#
+# Taxonomía anclada al instrumento real:
+#   - Tipologías (t01..t11) = Anexo N°02 (Informe de valoración de riesgo),
+#     columnas Riesgo / Desprotección Familiar.
+#   - Signos de alerta = Anexo N°01 (salud_fisica / salud_mental / necesidades_basicas).
+#   Fuentes: CONTEXT/docs/anexo-01-signos-alerta.md, anexo-02-valoracion-riesgo.md
+#
+# Enums:
+#   nivel:      sin_riesgo_aparente | riesgo | presuncion_desproteccion
+#   derivacion: orientacion | DEMUNA_RDF | UPE_DF
+#   pii.tipo:   NOMBRE_NNA | NOMBRE_ADULTO | DNI | DIRECCION | DISTRITO
+#               TELEFONO | EDAD | INSTITUCION | CENTRO_SALUD
+# =============================================================================
+
+taxonomia:
+  tipologias:
+    t01: "Violencia sexual en la familia de origen"
+    t02: "Explotación sexual"
+    t03: "Violencia física en la familia de origen"
+    t04: "Violencia psicológica en la familia de origen"
+    t05: "Trabajo de NNA con afectación de derechos"
+    t06: "Vida en calle"
+    t07: "Mendicidad"
+    t08: "Negligencia o descuido"
+    t09: "Trata de NNA desde la familia de origen"
+    t10: "Abandono"
+    t11: "Imposibilidad temporal o definitiva de progenitores"
+  regla_seguridad: >
+    Ante duda entre 'riesgo' y 'presuncion_desproteccion', escalar a UPE_DF
+    y bajar confianza. Violencia sexual / explotación / trata / abandono con
+    pérdida de cuidado parental → presuncion_desproteccion por defecto.
+
+casos:
+
+  # --- sin_riesgo_aparente -------------------------------------------------
+  - id: caso-001
+    canal: triaje_ciudadano
+    relato: >
+      Buenas, soy Rosa Quispe Mamani, vivo en Jr. Las Begonias 245, Villa El
+      Salvador. Quería una orientación: mi hijo Diego tiene 9 años y discute
+      mucho con su papá por las tareas. No hay golpes ni nada, solo quiero
+      saber a dónde acudir para una charla familiar. Mi número es +51 987654321.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Rosa Quispe Mamani"}
+      - {tipo: DIRECCION, valor: "Jr. Las Begonias 245"}
+      - {tipo: DISTRITO, valor: "Villa El Salvador"}
+      - {tipo: NOMBRE_NNA, valor: "Diego"}
+      - {tipo: EDAD, valor: "9 años"}
+      - {tipo: TELEFONO, valor: "+51 987654321"}
+    triaje_esperado:
+      nivel: sin_riesgo_aparente
+      derivacion: orientacion
+      tipologias: []
+      signos_alerta: []
+      confianza_min: 0.6
+    nota: "Consulta de orientación. Sin tipología ni signo. No abre procedimiento."
+
+  - id: caso-002
+    canal: triaje_ciudadano
+    relato: >
+      Soy profesora del IE 6071 República de Nicaragua en Chorrillos. Tengo una
+      duda general sobre cómo reportar si en el futuro detecto un caso. Hoy no
+      tengo ningún alumno con problema, es solo informativo.
+    pii_esperada:
+      - {tipo: INSTITUCION, valor: "IE 6071 República de Nicaragua"}
+      - {tipo: DISTRITO, valor: "Chorrillos"}
+    triaje_esperado:
+      nivel: sin_riesgo_aparente
+      derivacion: orientacion
+      tipologias: []
+      signos_alerta: []
+      confianza_min: 0.7
+    nota: "Consulta informativa de un actor (IE). Sin NNA afectado concreto."
+
+  # --- riesgo → DEMUNA_RDF --------------------------------------------------
+  - id: caso-003
+    canal: triaje_ciudadano
+    relato: >
+      Mi nombre es Carmen Huamán, DNI 70845123. Vivo en Av. Los Próceres 1130,
+      San Juan de Lurigancho. Mi sobrina Lucía Ramos, de 7 años, falta seguido
+      al colegio y a veces llega sin lonchera ni desayuno. Vive con su mamá pero
+      la señora trabaja todo el día y la deja sola. No la maltratan, pero está
+      descuidada.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Carmen Huamán"}
+      - {tipo: DNI, valor: "70845123"}
+      - {tipo: DIRECCION, valor: "Av. Los Próceres 1130"}
+      - {tipo: DISTRITO, valor: "San Juan de Lurigancho"}
+      - {tipo: NOMBRE_NNA, valor: "Lucía Ramos"}
+      - {tipo: EDAD, valor: "7 años"}
+    triaje_esperado:
+      nivel: riesgo
+      derivacion: DEMUNA_RDF
+      tipologias: [t08]
+      signos_alerta: [necesidades_basicas.a, necesidades_basicas.c]
+      confianza_min: 0.6
+    nota: "Negligencia/descuido con NNA que CONVIVE con familia. Riesgo, no DF."
+
+  - id: caso-004
+    canal: triaje_ciudadano
+    relato: >
+      Llamo por mi vecino. El niño Mateo Flores, como de 11 años, vende
+      caramelos en el paradero de la Av. Brasil hasta tarde para ayudar a su
+      mamá. Vive con ella en el mismo edificio que yo, en Pueblo Libre. No
+      quiero dar mi nombre.
+    pii_esperada:
+      - {tipo: NOMBRE_NNA, valor: "Mateo Flores"}
+      - {tipo: EDAD, valor: "11 años"}
+      - {tipo: DIRECCION, valor: "Av. Brasil"}
+      - {tipo: DISTRITO, valor: "Pueblo Libre"}
+    triaje_esperado:
+      nivel: riesgo
+      derivacion: DEMUNA_RDF
+      tipologias: [t05]
+      signos_alerta: []
+      confianza_min: 0.55
+    nota: "Trabajo infantil que afecta derechos, NNA aún con familia. Riesgo."
+
+  - id: caso-005
+    canal: triaje_ciudadano
+    relato: >
+      Soy Pedro Castillo Ríos. Mi hija Valentina, 14 años, está muy retraída,
+      llora seguido y dejó de comer bien desde que su mamá y yo nos separamos.
+      Sigue viviendo conmigo en Mz. F Lt. 12, Carabayllo. Quiero ayuda
+      psicológica para ella.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Pedro Castillo Ríos"}
+      - {tipo: NOMBRE_NNA, valor: "Valentina"}
+      - {tipo: EDAD, valor: "14 años"}
+      - {tipo: DIRECCION, valor: "Mz. F Lt. 12"}
+      - {tipo: DISTRITO, valor: "Carabayllo"}
+    triaje_esperado:
+      nivel: riesgo
+      derivacion: DEMUNA_RDF
+      tipologias: [t04]
+      signos_alerta: [salud_mental.c, salud_fisica.e]
+      confianza_min: 0.55
+    nota: "Afectación psicológica/emocional, NNA con padre. Riesgo. Vigilar escalamiento."
+
+  - id: caso-006
+    canal: triaje_ciudadano
+    relato: >
+      Buen día, soy Ana María Torres, DNI 41209876, de la APAFA del colegio.
+      Hay un alumno, José Antonio Mendoza, 8 años, que llega con la ropa sucia,
+      huele mal y dice que en casa no hay quién lo bañe. Vive con su abuela en
+      El Agustino. La abuela está mayor y no se da abasto.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Ana María Torres"}
+      - {tipo: DNI, valor: "41209876"}
+      - {tipo: NOMBRE_NNA, valor: "José Antonio Mendoza"}
+      - {tipo: EDAD, valor: "8 años"}
+      - {tipo: DISTRITO, valor: "El Agustino"}
+    triaje_esperado:
+      nivel: riesgo
+      derivacion: DEMUNA_RDF
+      tipologias: [t08, t11]
+      signos_alerta: [necesidades_basicas.c]
+      confianza_min: 0.5
+    nota: "Negligencia + capacidad limitada del cuidador. Riesgo; si se confirma imposibilidad total, escala."
+
+  # --- presuncion_desproteccion → UPE_DF -----------------------------------
+  - id: caso-007
+    canal: triaje_ciudadano
+    relato: >
+      Es urgente. La niña Sofía Vargas, 6 años, fue dejada sola en una vivienda
+      abandonada en Ventanilla hace tres días. Los vecinos dicen que la mamá se
+      fue y no volvió. La niña está sola, sin comer. No sé de ningún familiar.
+    pii_esperada:
+      - {tipo: NOMBRE_NNA, valor: "Sofía Vargas"}
+      - {tipo: EDAD, valor: "6 años"}
+      - {tipo: DISTRITO, valor: "Ventanilla"}
+    triaje_esperado:
+      nivel: presuncion_desproteccion
+      derivacion: UPE_DF
+      tipologias: [t10, t08]
+      signos_alerta: [necesidades_basicas.a, salud_fisica.h]
+      confianza_min: 0.8
+    nota: "Abandono, NNA SIN cuidado parental, sin familia. Desprotección → UPE, atención inmediata."
+
+  - id: caso-008
+    canal: triaje_ciudadano
+    relato: >
+      Denuncio que el padrastro de la adolescente Camila Reyes, 13 años, abusa
+      sexualmente de ella. Vive con él y su mamá en Jr. Cusco 410, Cercado de
+      Lima. La mamá lo sabe y no hace nada. El padrastro se llama Luis Paredes.
+    pii_esperada:
+      - {tipo: NOMBRE_NNA, valor: "Camila Reyes"}
+      - {tipo: EDAD, valor: "13 años"}
+      - {tipo: NOMBRE_ADULTO, valor: "Luis Paredes"}
+      - {tipo: DIRECCION, valor: "Jr. Cusco 410"}
+      - {tipo: DISTRITO, valor: "Cercado de Lima"}
+    triaje_esperado:
+      nivel: presuncion_desproteccion
+      derivacion: UPE_DF
+      tipologias: [t01]
+      signos_alerta: [salud_fisica.a, salud_fisica.c, salud_mental.e]
+      confianza_min: 0.85
+    nota: "Violencia sexual intrafamiliar con familia no protectora. DF, requiere separación. Coordinar Fiscalía/PNP."
+
+  - id: caso-009
+    canal: triaje_ciudadano
+    relato: >
+      Hola, los hermanos Antony y Brisa Cárdenas, de 5 y 7 años, viven en la
+      calle cerca al mercado de Caquetá, en el Rímac. Piden monedas todo el día.
+      Un adulto los controla pero no parece su familia. Llevan semanas así.
+    pii_esperada:
+      - {tipo: NOMBRE_NNA, valor: "Antony"}
+      - {tipo: NOMBRE_NNA, valor: "Brisa Cárdenas"}
+      - {tipo: EDAD, valor: "5 y 7 años"}
+      - {tipo: DISTRITO, valor: "Rímac"}
+    triaje_esperado:
+      nivel: presuncion_desproteccion
+      derivacion: UPE_DF
+      tipologias: [t06, t07, t09]
+      signos_alerta: [necesidades_basicas.a, necesidades_basicas.b]
+      confianza_min: 0.75
+    nota: "Vida en calle + mendicidad + posible trata por tercero. DF. Posible articulación PNP."
+
+  - id: caso-010
+    canal: triaje_ciudadano
+    relato: >
+      Mi hermana Julia Espinoza falleció la semana pasada y su esposo está
+      detenido en el penal de Lurigancho. Sus dos hijos, Thiago de 4 y Mía de 2,
+      quedaron sin nadie. Yo vivo lejos en Arequipa y no puedo hacerme cargo
+      ahora. Están donde una vecina que ya no puede tenerlos.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Julia Espinoza"}
+      - {tipo: NOMBRE_NNA, valor: "Thiago"}
+      - {tipo: NOMBRE_NNA, valor: "Mía"}
+      - {tipo: EDAD, valor: "4 y 2 años"}
+      - {tipo: DISTRITO, valor: "Arequipa"}
+    triaje_esperado:
+      nivel: presuncion_desproteccion
+      derivacion: UPE_DF
+      tipologias: [t11, t10]
+      signos_alerta: []
+      confianza_min: 0.7
+    nota: "Imposibilidad definitiva de ambos progenitores, sin familia que asuma. DF → tutela estatal/acogimiento."
+
+  # --- borderline / escalamiento -------------------------------------------
+  - id: caso-011
+    canal: triaje_ciudadano
+    relato: >
+      Soy Marisol Aguilar, vivo en Jr. Amazonas 88, Comas. Mi vecino le pega a
+      su hijo Kevin, 10 años, con correa cuando toma. Hoy lo escuché gritar
+      fuerte. El niño sigue viviendo ahí. No sé si tiene marcas.
+    pii_esperada:
+      - {tipo: NOMBRE_ADULTO, valor: "Marisol Aguilar"}
+      - {tipo: DIRECCION, valor: "Jr. Amazonas 88"}
+      - {tipo: DISTRITO, valor: "Comas"}
+      - {tipo: NOMBRE_NNA, valor: "Kevin"}
+      - {tipo: EDAD, valor: "10 años"}
+    triaje_esperado:
+      nivel: presuncion_desproteccion
+      derivacion: UPE_DF
+      tipologias: [t03]
+      signos_alerta: [salud_fisica.f]
+      confianza_min: 0.5
+    nota: >
+      Borderline: violencia física por progenitor. Aunque el NNA aún convive,
+      la gravedad/recurrencia activa la regla de seguridad → escalar a UPE_DF
+      con confianza baja. La DEMUNA/UPE confirmará si procede separación.
+
+  - id: caso-012
+    canal: triaje_ciudadano
+    relato: >
+      El adolescente Bryan Rojas, 15 años, se autolesiona los brazos y publicó
+      mensajes sobre quitarse la vida. Vive con sus papás en Surco pero ellos
+      minimizan el tema. Es un colegio el que reporta, IE Los Robles.
+    pii_esperada:
+      - {tipo: NOMBRE_NNA, valor: "Bryan Rojas"}
+      - {tipo: EDAD, valor: "15 años"}
+      - {tipo: DISTRITO, valor: "Surco"}
+      - {tipo: INSTITUCION, valor: "IE Los Robles"}
+    triaje_esperado:
+      nivel: riesgo
+      derivacion: DEMUNA_RDF
+      tipologias: [t04, t08]
+      signos_alerta: [salud_mental.a, salud_mental.d]
+      confianza_min: 0.5
+    nota: >
+      Riesgo mental grave (ideación suicida + autolesión) con familia presente
+      pero negligente. Riesgo con atención de salud mental INMEDIATA (Anexo 01
+      salud_mental.a). Si la familia obstruye la protección → reevaluar a DF.

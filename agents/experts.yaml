@@ -1,0 +1,77 @@
+# =============================================================================
+# REGISTRO DE EXPERTOS (Mixture of Experts, nivel aplicación)
+# Config como dato: el router despacha a estos expertos. Cada uno declara su
+# ámbito, herramientas, filtro de corpus/KG y referencia de prompt.
+# Ver ARCHITECTURE-AGENTIC.md §4.
+# =============================================================================
+
+version: "1.0"
+
+# Herramientas disponibles (implementadas en app/ y agents/):
+#   kg_query       -> consulta el knowledge graph (kg/store.py)
+#   vector_search  -> recuperación semántica sobre el corpus (app/rag)
+#   formats_lookup -> lee el registro de formatos (formats/*.yaml)
+#   plazo_calc     -> motor de plazos (vencimientos, días hábiles)
+
+# Invariantes heredadas (SPEC §12): citar siempre o rehusar; nunca inventar
+# plazos/artículos/campos; operar solo sobre tokens (nunca PII real).
+
+expertos:
+
+  - id: triaje
+    persona: ciudadano
+    desc: "Relato ciudadano → clasificación riesgo/DF + derivación (TriajeResult)."
+    tools: [kg_query, formats_lookup, vector_search]
+    scope_kg: [SignoAlerta, Tipologia, Actor, Compuerta]
+    scope_corpus: { flujo: [rdf, df], tipo_doc: [ficha] }
+    salida: TriajeResult            # Pydantic, alineado a anexo-02.yaml
+    prompt_ref: prompts/experto_triaje.md
+    regla: "Ante duda riesgo↔DF, escalar a UPE_DF y bajar confianza."
+
+  - id: copiloto_rdf
+    persona: operador
+    desc: "Procedimiento RDF (DEMUNA): etapas, plazos, compuertas, qué resolución corresponde."
+    tools: [kg_query, vector_search, plazo_calc]
+    scope_kg: [Flujo, Etapa, Artefacto, Compuerta, Plazo]
+    scope_corpus: { flujo: [rdf] }
+    prompt_ref: prompts/experto_rdf.md
+
+  - id: copiloto_df
+    persona: operador
+    desc: "Procedimiento DF (UPE): acogimiento, medidas, fase judicial, adoptabilidad."
+    tools: [kg_query, vector_search, plazo_calc]
+    scope_kg: [Flujo, Etapa, Artefacto, Compuerta, Plazo, Medida, Actor]
+    scope_corpus: { flujo: [df] }
+    prompt_ref: prompts/experto_df.md
+
+  - id: legal
+    persona: ambos
+    desc: "Citas y fundamento legal: DL 1297, reglamento, leyes, RMs."
+    tools: [kg_query, vector_search]
+    scope_kg: [NormaLegal, Articulo, Artefacto, Plazo]
+    scope_corpus: { tipo_doc: [resumen, ficha] }   # corpus legal íntegro = SPEC §11 (gap)
+    prompt_ref: prompts/experto_legal.md
+    regla: "Si la pregunta legal excede las citas inline del corpus → rehusar (no inventar artículos)."
+
+  - id: formatos
+    persona: operador
+    desc: "Qué campos/artefactos lleva una etapa; estructura de fichas y resoluciones."
+    tools: [formats_lookup, kg_query]
+    scope_kg: [Artefacto, Etapa]
+    scope_corpus: { tipo_doc: [ficha, resumen] }
+    prompt_ref: prompts/experto_formatos.md
+
+  - id: compliance
+    persona: ambos
+    desc: "Manejo de dato sensible, plazos, brechas; '¿puedo compartir/derivar esto?'."
+    tools: [kg_query, vector_search, plazo_calc]
+    scope_kg: [NormaLegal, Plazo, Medida]
+    scope_corpus: { flujo: [rdf, df] }
+    prompt_ref: prompts/experto_compliance.md
+    regla: "Brechas/Ley 29733 no están en el corpus inicial (SPEC §11) → rehusar lo no soportado."
+
+# Política de routing (referencia; lógica en agents/router.py)
+routing:
+  top_k_default: 1
+  top_k_max: 2                # 2 si confianza baja o flujo == 'ambos'
+  fuera_dominio: rehusar      # no invoca expertos

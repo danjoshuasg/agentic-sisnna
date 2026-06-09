@@ -1,0 +1,48 @@
+# =============================================================================
+# PII NO-LEAK — suite crítica de no-fuga (gateway de des-identificación, SPEC §7)
+# Verifica que NINGÚN valor real de PII salga en el payload hacia el LLM
+# (ni en query de embedding ni en generación). Bloquea release si falla.
+#
+# Fuente primaria: mock/casos_sinteticos.yaml (cada caso trae `pii_esperada`).
+# Este archivo añade casos ADVERSARIALES con PII en formatos difíciles, que el
+# gateway igual debe tokenizar.
+#
+# Métrica (eval/run_eval.py):
+#   - leak_count: nº de valores de `no_debe_aparecer` presentes en el payload de
+#     egreso. DEBE ser 0.
+#   - rehidratacion_ok: la respuesta final reconstruye los valores desde la bóveda.
+# =============================================================================
+
+fuente_primaria: "../mock/casos_sinteticos.yaml"   # todos los relatos + su pii_esperada
+
+casos_adversariales:
+
+  - id: pii-adv-001
+    texto: "El menor D I E G O R A M O S, con D.N.I. 7 0 8 4 5 1 2 3, vive en la zona."
+    no_debe_aparecer: ["DIEGO RAMOS", "70845123", "70 845 123", "7 0 8 4 5 1 2 3"]
+    nota: "DNI con espacios y nombre espaciado — el reconocedor debe normalizar."
+
+  - id: pii-adv-002
+    texto: "Contáctenme al cel 987-654-321 o al fijo (01) 234-5678, soy la tía."
+    no_debe_aparecer: ["987-654-321", "987654321", "(01) 234-5678", "2345678"]
+    nota: "Teléfonos en varios formatos PE."
+
+  - id: pii-adv-003
+    texto: "vivo en jiron las begonias doscientos cuarenta y cinco, villa el salvador"
+    no_debe_aparecer: ["las begonias doscientos cuarenta y cinco", "villa el salvador"]
+    nota: "Dirección y distrito en minúsculas, número en letras."
+
+  - id: pii-adv-004
+    texto: "Mi correo es rosa.quispe92@gmail.com y el niño estudia en el IE 6071."
+    no_debe_aparecer: ["rosa.quispe92@gmail.com", "IE 6071"]
+    nota: "Correo + institución educativa (identificable)."
+
+  - id: pii-adv-005
+    texto: "Lucía tiene 7 añitos, nació el 12/03/2018, es mi sobrina."
+    no_debe_aparecer: ["Lucía", "7 añitos", "12/03/2018"]
+    nota: "Nombre informal + edad coloquial + fecha de nacimiento."
+
+reglas:
+  - "El payload de egreso (a embedding y a generación) contiene 0 valores de no_debe_aparecer."
+  - "Cada PII detectada se sustituye por un token estable dentro del request."
+  - "La bóveda permite re-hidratar; el valor real nunca se loggea (SPEC §12)."

@@ -1,0 +1,294 @@
+# =============================================================================
+# INSTANCIAS del Knowledge Graph — Flujo RDF (riesgo de desprotección familiar)
+# Autoría declarativa (NO extracción NLP). Tipos en kg/ontology.yaml.
+# Fuente: CONTEXT/rdf-docs/flujo.md (+ flujo-web-validacion, leyes). Trazable por source_path.
+# Slice A0 = RDF. El flujo DF se añade en Slice A3.
+# =============================================================================
+
+version: "1.0"
+source_default: CONTEXT/rdf-docs/flujo.md
+
+nodos:
+
+  # --- Flujo + Actores ------------------------------------------------------
+  - {id: "Flujo:rdf", tipo: Flujo, datos: {nombre: "Riesgo de desprotección familiar", ejecutor: "DEMUNA acreditada"},
+     descripcion: "Procedimiento administrativo por riesgo de desprotección familiar que ejecuta la DEMUNA acreditada cuando un NNA convive con su familia pero hay factores de riesgo."}
+  - {id: "Actor:demuna", tipo: Actor, datos: {nombre: "DEMUNA acreditada", nivel: local},
+     descripcion: "Defensoría Municipal del Niño y Adolescente acreditada. Ejecuta el procedimiento por riesgo con equipo interdisciplinario (abogado, psicólogo, trabajador social)."}
+  - {id: "Actor:dsld", tipo: Actor, datos: {nombre: "DSLD-DGNNA-MIMP", nivel: nacional},
+     descripcion: "Dirección de Sistemas Locales y Defensorías. Acredita, registra, supervisa y sanciona a las DEMUNA. Dueña funcional del SisDNA."}
+  - {id: "Actor:upe", tipo: Actor, datos: {nombre: "Unidad de Protección Especial", nivel: nacional},
+     descripcion: "UPE del MIMP. Atiende la desprotección familiar (caso grave, NNA sin cuidados parentales). La DEMUNA le deriva cuando detecta desprotección."}
+  - {id: "Actor:juzgado_familia", tipo: Actor, datos: {nombre: "Juzgado de familia o mixto", nivel: judicial},
+     descripcion: "Vía judicial. Puede declinar competencia a la DEMUNA."}
+
+  # --- Etapas ---------------------------------------------------------------
+  - {id: "Etapa:rdf_recepcion", tipo: Etapa, datos: {nombre: "Recepción", orden: 1, flujo: rdf},
+     descripcion: "Etapa 1. Registra el caso en Formato N°01 y genera la codificación del expediente. Decide si el caso entró por declinación de UPE/juzgado."}
+  - {id: "Etapa:rdf_valoracion", tipo: Etapa, datos: {nombre: "Valoración", orden: 2, flujo: rdf},
+     descripcion: "Etapa 2. Identifica signos de alerta (Anexo N°01) y elabora el informe de valoración de riesgo (Anexo N°02). Decide presunción de riesgo o de desprotección familiar."}
+  - {id: "Etapa:rdf_evaluacion", tipo: Etapa, datos: {nombre: "Evaluación", orden: 3, flujo: rdf},
+     descripcion: "Etapa 3. Visita domiciliaria, entrevistas a NNA y familia, informe de evaluación interdisciplinario (Informe N°03). Declara o no el riesgo."}
+  - {id: "Etapa:rdf_pti", tipo: Etapa, datos: {nombre: "PTI, implementación y seguimiento", orden: 4, flujo: rdf},
+     descripcion: "Etapa 4. Elabora el Plan de Trabajo Individual (PTI) para neutralizar el riesgo, aprueba medidas de protección (Resolución N°06) y da seguimiento."}
+  - {id: "Etapa:rdf_conclusion", tipo: Etapa, datos: {nombre: "Conclusión", orden: 5, flujo: rdf},
+     descripcion: "Etapa 5. Concluye el procedimiento por riesgo con Resolución N°07 y notifica a las partes."}
+  - {id: "Etapa:rdf_recurrente", tipo: Etapa, datos: {nombre: "Rectificación / variación / reconsideración", orden: 99, flujo: rdf},
+     descripcion: "Subproceso recurrente disponible desde varias etapas: rectificar resoluciones, variar medidas, resolver recursos de reconsideración."}
+
+  # --- Plazos (Ley 32017 para riesgo) --------------------------------------
+  - {id: "Plazo:rdf_recepcion_1dh", tipo: Plazo, datos: {valor: 1, unidad: dia_habil, descripcion: "Recepción: 1 día hábil"},
+     descripcion: "Plazo de la etapa de recepción: un día hábil."}
+  - {id: "Plazo:rdf_valoracion_1dh", tipo: Plazo, datos: {valor: 1, unidad: dia_habil, descripcion: "Valoración: 1 día hábil, ampliable +1"},
+     descripcion: "Plazo de la etapa de valoración: un día hábil, ampliable un día hábil adicional por resolución."}
+  - {id: "Plazo:rdf_evaluacion_5dh", tipo: Plazo, datos: {valor: 5, unidad: dia_habil, descripcion: "Evaluación: 5 días hábiles"},
+     descripcion: "Plazo de la etapa de evaluación del riesgo: cinco días hábiles."}
+  - {id: "Plazo:rdf_pti_10dh", tipo: Plazo, datos: {valor: 10, unidad: dia_habil, descripcion: "Elaboración del PTI: 10 días hábiles"},
+     descripcion: "Plazo para elaborar el Plan de Trabajo Individual: diez días hábiles."}
+  - {id: "Plazo:rdf_medida_9m", tipo: Plazo, datos: {valor: 9, unidad: mes, descripcion: "Medida de protección por riesgo: máx 9 meses (Ley 32017)"},
+     descripcion: "Duración máxima de la medida de protección en riesgo: nueve meses, según la Ley 32017."}
+  - {id: "Plazo:rdf_pti_12m", tipo: Plazo, datos: {valor: 12, unidad: mes, descripcion: "PTI por riesgo: máx 12 meses (Ley 32017)"},
+     descripcion: "Duración máxima del PTI en riesgo: doce meses, según la Ley 32017. (El 18 meses del diagrama TDR es de desprotección, no de riesgo.)"}
+  - {id: "Plazo:rdf_recurrente_5dh", tipo: Plazo, datos: {valor: 5, unidad: dia_habil, descripcion: "Subproceso recurrente: 5 días hábiles"},
+     descripcion: "Plazo del subproceso de rectificación/variación/reconsideración: cinco días hábiles."}
+
+  # --- Compuertas (decisiones) ---------------------------------------------
+  - {id: "Compuerta:rdf_recepcion_declinacion", tipo: Compuerta, datos: {pregunta: "¿El caso fue declinado por UPE o juzgado?"},
+     descripcion: "Decisión en recepción: si el caso entra por declinación de competencia de UPE/juzgado, se adjunta Resolución N°01 y se decide a qué etapa entra."}
+  - {id: "Compuerta:rdf_valoracion_df", tipo: Compuerta, datos: {pregunta: "¿Hay presunción de desprotección familiar?"},
+     descripcion: "Decisión en valoración: si hay presunción de desprotección familiar, no se inicia riesgo (Resolución N°02) y se deriva a la UPE."}
+  - {id: "Compuerta:rdf_valoracion_riesgo", tipo: Compuerta, datos: {pregunta: "¿Hay presunción de riesgo?"},
+     descripcion: "Decisión en valoración: si hay presunción de riesgo, se inicia el procedimiento (Resolución N°04); si no, Resolución N°03 (no inicia)."}
+  - {id: "Compuerta:rdf_evaluacion_df", tipo: Compuerta, datos: {pregunta: "¿Hay desprotección familiar?"},
+     descripcion: "Decisión en evaluación: si hay desprotección familiar se deriva a UPE (Resolución N°02)."}
+  - {id: "Compuerta:rdf_evaluacion_riesgo", tipo: Compuerta, datos: {pregunta: "¿Se confirma el riesgo?"},
+     descripcion: "Decisión en evaluación: si se confirma el riesgo se declara (Resolución N°05) y pasa a PTI; si no, Resolución N°03."}
+  - {id: "Compuerta:rdf_evaluacion_declinacion", tipo: Compuerta, datos: {pregunta: "¿Declinación de competencia a otra DNA?"},
+     descripcion: "Decisión en evaluación: si procede declinar competencia a otra DNA, Resolución N°11 y conclusión."}
+  - {id: "Compuerta:rdf_pti_cierre", tipo: Compuerta, datos: {pregunta: "¿Se cumplieron los objetivos del PTI o hay desprotección?"},
+     descripcion: "Decisión al cierre del PTI: si se cumplieron objetivos pasa a conclusión; si aparece desprotección, deriva a UPE."}
+
+  # --- Medida ---------------------------------------------------------------
+  - {id: "Medida:rdf_proteccion", tipo: Medida, datos: {nombre: "Medidas de protección por riesgo", tipo: proteccion},
+     descripcion: "Medidas de protección dispuestas en el PTI para neutralizar el riesgo (aprobadas por Resolución N°06). Máx 9 meses (Ley 32017)."}
+
+  # --- Normas y artículos ---------------------------------------------------
+  - {id: "Norma:dl1297", tipo: NormaLegal, datos: {nombre: "Decreto Legislativo 1297", anio: 2016},
+     descripcion: "DL 1297, ley base que crea los procedimientos por riesgo y por desprotección familiar de NNA.", source_path: CONTEXT/rdf-docs/leyes.md}
+  - {id: "Norma:ds001_2018", tipo: NormaLegal, datos: {nombre: "DS 001-2018-MIMP (Reglamento DL 1297)", anio: 2018},
+     descripcion: "Reglamento del DL 1297, con modificatorias DS 006-2022 y DS 006-2024-MIMP.", source_path: CONTEXT/rdf-docs/leyes.md}
+  - {id: "Norma:ley32017", tipo: NormaLegal, datos: {nombre: "Ley 32017", anio: 2024},
+     descripcion: "Fija plazos por procedimiento: riesgo con medida 9 meses y PTI 12 meses; desprotección 18 y 18.", source_path: CONTEXT/rdf-docs/leyes.md}
+  - {id: "Norma:rm189_2021", tipo: NormaLegal, datos: {nombre: "RM 189-2021-MIMP", anio: 2021},
+     descripcion: "Aprueba la Tabla de Valoración de Riesgo (Anexo N°02).", source_path: CONTEXT/rdf-docs/leyes.md}
+  - {id: "Articulo:dl1297_28", tipo: Articulo, datos: {numero: 28, norma: "Norma:dl1297"},
+     descripcion: "Artículo del DL 1297 sobre la valoración del riesgo (base legal del Anexo N°02).", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+
+  # --- Tipologías (Tabla de Valoración, Anexo N°02 / mock) ------------------
+  - {id: "Tipologia:t01", tipo: Tipologia, datos: {texto: "Violencia sexual en la familia de origen"}, descripcion: "Tipología t01: violencia sexual en la familia de origen.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t02", tipo: Tipologia, datos: {texto: "Explotación sexual"}, descripcion: "Tipología t02: explotación sexual de NNA.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t03", tipo: Tipologia, datos: {texto: "Violencia física en la familia de origen"}, descripcion: "Tipología t03: violencia física en la familia de origen.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t04", tipo: Tipologia, datos: {texto: "Violencia psicológica en la familia de origen"}, descripcion: "Tipología t04: violencia psicológica en la familia de origen.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t05", tipo: Tipologia, datos: {texto: "Trabajo de NNA con afectación de derechos"}, descripcion: "Tipología t05: trabajo de NNA con afectación de derechos.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t06", tipo: Tipologia, datos: {texto: "Vida en calle"}, descripcion: "Tipología t06: vida en calle.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t07", tipo: Tipologia, datos: {texto: "Mendicidad"}, descripcion: "Tipología t07: mendicidad.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t08", tipo: Tipologia, datos: {texto: "Negligencia o descuido"}, descripcion: "Tipología t08: negligencia o descuido.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t09", tipo: Tipologia, datos: {texto: "Trata de NNA desde la familia de origen"}, descripcion: "Tipología t09: trata de NNA desde la familia de origen.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t10", tipo: Tipologia, datos: {texto: "Abandono"}, descripcion: "Tipología t10: abandono.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Tipologia:t11", tipo: Tipologia, datos: {texto: "Imposibilidad temporal o definitiva de progenitores"}, descripcion: "Tipología t11: imposibilidad temporal o definitiva de los progenitores.", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+
+  # --- Artefactos (catálogo, code = formato_ref si existe def en formats/) ---
+  - {id: "Artefacto:F01", tipo: Artefacto, datos: {codigo: "F01", nombre: "Ficha de recepción de casos", formato_ref: null}, descripcion: "Formato N°01: ficha de recepción de casos.", source_path: CONTEXT/docs/formato-01-recepcion.md}
+  - {id: "Artefacto:A01", tipo: Artefacto, datos: {codigo: "A01", nombre: "Ficha de identificación de signos de alerta", formato_ref: null}, descripcion: "Anexo N°01: ficha de identificación de signos de alerta.", source_path: CONTEXT/docs/anexo-01-signos-alerta.md}
+  - {id: "Artefacto:A02", tipo: Artefacto, datos: {codigo: "A02", nombre: "Informe de valoración de riesgo", formato_ref: "formats/anexo-02.yaml"}, descripcion: "Anexo N°02: informe de valoración de riesgo (tipologías × riesgo/desprotección).", source_path: CONTEXT/docs/anexo-02-valoracion-riesgo.md}
+  - {id: "Artefacto:F02", tipo: Artefacto, datos: {codigo: "F02", nombre: "Ficha de entrevista (NNA / familia)", formato_ref: null}, descripcion: "Formato N°02: ficha de entrevista al NNA y a la familia de origen.", source_path: CONTEXT/docs/formato-02-entrevista.md}
+  - {id: "Artefacto:F03", tipo: Artefacto, datos: {codigo: "F03", nombre: "Ficha de visita domiciliaria", formato_ref: null}, descripcion: "Formato N°03: ficha de visita domiciliaria.", source_path: CONTEXT/docs/formato-03-visita.md}
+  - {id: "Artefacto:INF03", tipo: Artefacto, datos: {codigo: "INF03", nombre: "Informe de evaluación interdisciplinario", formato_ref: null}, descripcion: "Informe N°03: informe de evaluación interdisciplinario.", source_path: CONTEXT/docs/informe-03-evaluacion.md}
+  - {id: "Artefacto:F11", tipo: Artefacto, datos: {codigo: "F11", nombre: "Ficha de seguimiento de casos", formato_ref: null}, descripcion: "Formato N°11: ficha de seguimiento de casos.", source_path: CONTEXT/docs/formato-11-seguimiento.md}
+  - {id: "Artefacto:PTI", tipo: Artefacto, datos: {codigo: "PTI", nombre: "Plan de Trabajo Individual", formato_ref: null}, descripcion: "PTI: Plan de Trabajo Individual para neutralizar el riesgo.", source_path: CONTEXT/docs/pti.md}
+  - {id: "Artefacto:R01", tipo: Artefacto, datos: {codigo: "R01", nombre: "Resolución que asume competencia por declinación", formato_ref: null}, descripcion: "Resolución N°01: asume competencia por declinación de UPE/juzgado.", source_path: CONTEXT/docs/resolucion-01.md}
+  - {id: "Artefacto:R02", tipo: Artefacto, datos: {codigo: "R02", nombre: "Resolución que no inicia riesgo y deriva a UPE", formato_ref: null}, descripcion: "Resolución N°02: no inicia riesgo por presunción de desprotección y deriva a la UPE.", source_path: CONTEXT/docs/resolucion-02.md}
+  - {id: "Artefacto:R03", tipo: Artefacto, datos: {codigo: "R03", nombre: "Resolución que no inicia riesgo", formato_ref: null}, descripcion: "Resolución N°03: no inicia procedimiento por riesgo (sin presunción).", source_path: CONTEXT/docs/resolucion-03.md}
+  - {id: "Artefacto:R04", tipo: Artefacto, datos: {codigo: "R04", nombre: "Resolución que inicia procedimiento por riesgo", formato_ref: "formats/resolucion-04.yaml"}, descripcion: "Resolución N°04: inicia el procedimiento por riesgo de desprotección familiar.", source_path: CONTEXT/docs/resolucion-04.md}
+  - {id: "Artefacto:R05", tipo: Artefacto, datos: {codigo: "R05", nombre: "Resolución que declara el riesgo", formato_ref: null}, descripcion: "Resolución N°05: declara el riesgo de manera provisional.", source_path: CONTEXT/docs/resolucion-05.md}
+  - {id: "Artefacto:R06", tipo: Artefacto, datos: {codigo: "R06", nombre: "Resolución que aprueba el PTI y medidas", formato_ref: null}, descripcion: "Resolución N°06: aprueba el PTI y las medidas de protección.", source_path: CONTEXT/docs/resolucion-06.md}
+  - {id: "Artefacto:R07", tipo: Artefacto, datos: {codigo: "R07", nombre: "Resolución que concluye el procedimiento", formato_ref: null}, descripcion: "Resolución N°07: concluye el procedimiento por riesgo y dispone medidas.", source_path: CONTEXT/docs/resolucion-07.md}
+  - {id: "Artefacto:R11", tipo: Artefacto, datos: {codigo: "R11", nombre: "Resolución de declinación de competencia a otra DNA", formato_ref: null}, descripcion: "Resolución N°11: declina competencia a otra DNA.", source_path: CONTEXT/docs/resolucion-11.md}
+
+  # ===========================================================================
+  # FLUJO DF (desprotección familiar, UPE). Fuente: CONTEXT/desproteccion-docs/flujo.md
+  # Reglamento DS 001-2018 Arts 11-102 + DL 1297 Art 52. Slice A3.
+  # ===========================================================================
+  - {id: "Flujo:df", tipo: Flujo, datos: {nombre: "Desprotección familiar", ejecutor: "UPE"}, descripcion: "Procedimiento por desprotección familiar que ejecuta la UPE cuando el NNA ya perdió los cuidados parentales: tutela estatal, acogimiento, vía judicial y adoptabilidad.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Actor:dpe", tipo: Actor, datos: {nombre: "Dirección de Protección Especial (DGNNA-MIMP)", nivel: nacional}, descripcion: "DPE: rectora de las UPE (normas, lineamientos, supervisión).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Actor:ministerio_publico", tipo: Actor, datos: {nombre: "Ministerio Público (Fiscalía de Familia)", nivel: nacional}, descripcion: "Parte en la vista de causa judicial de desprotección familiar.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Actor:car", tipo: Actor, datos: {nombre: "Centro de Acogida Residencial (CAR)", nivel: local}, descripcion: "Acoge al NNA sin familia: centros de urgencia, básico y especializado.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Actor:banco_familias", tipo: Actor, datos: {nombre: "Banco de Familias Acogedoras", nivel: nacional}, descripcion: "Familias que acogen temporalmente al NNA (acogimiento con tercero/profesionalizado).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Actor:unidad_adopcion", tipo: Actor, datos: {nombre: "Unidad de Adopción", nivel: nacional}, descripcion: "Conduce el proceso de adopción tras la declaración judicial de desprotección.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Etapa:df_inicio", tipo: Etapa, datos: {nombre: "Inicio y comunicación", orden: 1, flujo: df}, descripcion: "Etapa 1 DF. La UPE actúa de oficio o por comunicación (PNP, Fiscalía, IE/salud, DEMUNA que deriva). Atención inmediata 24/7 (Arts 11.a, 22).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_valoracion", tipo: Etapa, datos: {nombre: "Valoración preliminar", orden: 2, flujo: df}, descripcion: "Etapa 2 DF. Valora amenaza/afectación con la Tabla de Valoración de Riesgo (RM 189-2021) y decide por resolución iniciar el procedimiento por DF (Art 26).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_evaluacion", tipo: Etapa, datos: {nombre: "Evaluación interdisciplinaria", orden: 3, flujo: df}, descripcion: "Etapa 3 DF. Entrevistas, evaluaciones psicológicas/sociales, visitas, exámenes médico-legales, RENIEC. Diligencias exclusivas 5 días hábiles (Arts 32-41).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_declaracion_provisional", tipo: Etapa, datos: {nombre: "Declaración de DF provisional", orden: 4, flujo: df}, descripcion: "Etapa 4 DF. Tras escuchar al NNA, la UPE declara la desprotección familiar provisional y asume la tutela estatal (Art 67, Art 11.f), disparando las medidas de protección.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_medidas", tipo: Etapa, datos: {nombre: "Medidas de protección provisionales", orden: 5, flujo: df}, descripcion: "Etapa 5 DF. La UPE dispone una medida: acogimiento familiar (extensa/tercero/profesionalizado/permanente) o acogimiento residencial en CAR (Arts 70-102).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_pti", tipo: Etapa, datos: {nombre: "Plan de Trabajo Individual (DF)", orden: 6, flujo: df}, descripcion: "Etapa 6 DF. PTI en máx 20 días hábiles desde la resolución de DF provisional; aprobación 1 día hábil después. Medida hasta 18 meses (Ley 32017) (Arts 42-47).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_acceso_expediente", tipo: Etapa, datos: {nombre: "Acceso al expediente y alegatos", orden: 7, flujo: df}, descripcion: "Etapa 7 DF. La UPE pone el expediente a disposición 5 días hábiles; las partes presentan alegatos en 3 días hábiles (Art 66).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_transito_judicial", tipo: Etapa, datos: {nombre: "Tránsito a vía judicial", orden: 8, flujo: df}, descripcion: "Etapa 8 DF. La UPE solicita pronunciamiento judicial; vista de causa con 3 días hábiles de anticipación; audiencia especial al NNA; si no asisten, el juez resuelve en 5 días hábiles (Arts 11.j, 68).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_declaracion_judicial", tipo: Etapa, datos: {nombre: "Declaración judicial de DF", orden: 9, flujo: df}, descripcion: "Etapa 9 DF. El Juzgado de Familia o Mixto declara judicialmente la desprotección familiar y habilita la medida permanente (Art 52 DL 1297).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Etapa:df_adoptabilidad", tipo: Etapa, datos: {nombre: "Adoptabilidad", orden: 10, flujo: df}, descripcion: "Etapa 10 DF. Declarada la DF judicial, el caso pasa a adopción vía Unidad de Adopción; atención especial a NNA mayores de 6 años (Arts 14-16).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Plazo:df_evaluacion_5dh", tipo: Plazo, datos: {valor: 5, unidad: dia_habil, descripcion: "Diligencias exclusivas de evaluación: 5 días hábiles (Art 41)"}, descripcion: "Plazo de diligencias exclusivas en la evaluación DF: cinco días hábiles (Art 41).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Plazo:df_pti_20dh", tipo: Plazo, datos: {valor: 20, unidad: dia_habil, descripcion: "Elaboración del PTI en DF: máx 20 días hábiles (Arts 42-47)"}, descripcion: "Plazo para elaborar el PTI en desprotección: máximo veinte días hábiles desde la resolución de DF provisional; aprobación 1 día hábil después.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Plazo:df_medida_18m", tipo: Plazo, datos: {valor: 18, unidad: mes, descripcion: "Medida/PTI en DF: hasta 18 meses (Ley 32017)"}, descripcion: "Duración máxima de la medida y del PTI en desprotección: hasta dieciocho meses, según la Ley 32017.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Plazo:df_car_urgencia_10dh", tipo: Plazo, datos: {valor: 10, unidad: dia_habil, descripcion: "Permanencia en CAR de urgencia: máx 10 días hábiles (Arts 99-102)"}, descripcion: "Permanencia máxima de un NNA en un centro de acogida residencial de urgencia: diez días hábiles, transitorio, ≤10 NNA, 24/7.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Plazo:df_acceso_5dh", tipo: Plazo, datos: {valor: 5, unidad: dia_habil, descripcion: "Expediente a disposición: 5 días hábiles (Art 66)"}, descripcion: "Plazo en que el expediente queda a disposición de las partes antes de la vía judicial: cinco días hábiles (Art 66).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Plazo:df_alegatos_3dh", tipo: Plazo, datos: {valor: 3, unidad: dia_habil, descripcion: "Alegatos: 3 días hábiles (Art 66)"}, descripcion: "Plazo para presentar alegatos antes de la vía judicial: tres días hábiles (Art 66).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Medida:df_acogimiento_familiar", tipo: Medida, datos: {nombre: "Acogimiento familiar", tipo: acogimiento}, descripcion: "Medida de protección DF: acogimiento familiar (urgente, extensa, con tercero, profesionalizado, permanente). Subvención económica MIMP (Art 96) (Arts 70-97).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Medida:df_acogimiento_residencial", tipo: Medida, datos: {nombre: "Acogimiento residencial en CAR", tipo: acogimiento}, descripcion: "Medida de protección DF de último recurso: acogimiento residencial en CAR (urgencia/básico/especializado) (Arts 99-102).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Compuerta:df_medida", tipo: Compuerta, datos: {pregunta: "¿Hay familia que acoja al NNA?"}, descripcion: "Decisión de medida en DF: con familia → acogimiento familiar; sin familia → acogimiento residencial en CAR.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Compuerta:df_judicial", tipo: Compuerta, datos: {pregunta: "¿El juzgado declara la desprotección o procede reintegración?"}, descripcion: "Decisión judicial: si declara DF → adoptabilidad; si procede reintegración → retorno a la familia.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Articulo:dl1297_52", tipo: Articulo, datos: {numero: 52, norma: "Norma:dl1297"}, descripcion: "Art 52 del DL 1297: el Juzgado de Familia declara judicialmente la desprotección familiar.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Articulo:reg_41", tipo: Articulo, datos: {numero: 41, norma: "Norma:ds001_2018"}, descripcion: "Art 41 del Reglamento: diligencias exclusivas de evaluación en 5 días hábiles.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Articulo:reg_66", tipo: Articulo, datos: {numero: 66, norma: "Norma:ds001_2018"}, descripcion: "Art 66 del Reglamento: acceso al expediente (5 días hábiles) y alegatos (3 días hábiles).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Articulo:reg_67", tipo: Articulo, datos: {numero: 67, norma: "Norma:ds001_2018"}, descripcion: "Art 67 del Reglamento: declaración de DF provisional y asunción de tutela estatal por la UPE.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Articulo:reg_68", tipo: Articulo, datos: {numero: 68, norma: "Norma:ds001_2018"}, descripcion: "Art 68 del Reglamento: tránsito a vía judicial, vista de causa y plazo del juez (5 días hábiles).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+  - {id: "Artefacto:df_res_provisional", tipo: Artefacto, datos: {codigo: "DF-RP", nombre: "Resolución de DF provisional", formato_ref: null}, descripcion: "Resolución de la UPE que declara la desprotección familiar provisional y asume la tutela estatal.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Artefacto:df_pti", tipo: Artefacto, datos: {codigo: "DF-PTI", nombre: "Plan de Trabajo Individual (DF)", formato_ref: null}, descripcion: "PTI de desprotección familiar (objetivos, medida, plazos, seguimiento).", source_path: CONTEXT/desproteccion-docs/flujo.md}
+  - {id: "Artefacto:df_res_judicial", tipo: Artefacto, datos: {codigo: "DF-RJ", nombre: "Resolución judicial de DF", formato_ref: null}, descripcion: "Resolución del Juzgado de Familia que declara judicialmente la desprotección familiar.", source_path: CONTEXT/desproteccion-docs/flujo.md}
+
+aristas:
+
+  # Flujo → etapas, actor ejecuta
+  - {de: "Actor:demuna", rel: ejecuta, a: "Flujo:rdf"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_recepcion"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_valoracion"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_evaluacion"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_pti"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_conclusion"}
+  - {de: "Flujo:rdf", rel: tiene_etapa, a: "Etapa:rdf_recurrente"}
+
+  # Etapas → plazos
+  - {de: "Etapa:rdf_recepcion", rel: tiene_plazo, a: "Plazo:rdf_recepcion_1dh"}
+  - {de: "Etapa:rdf_valoracion", rel: tiene_plazo, a: "Plazo:rdf_valoracion_1dh"}
+  - {de: "Etapa:rdf_evaluacion", rel: tiene_plazo, a: "Plazo:rdf_evaluacion_5dh"}
+  - {de: "Etapa:rdf_pti", rel: tiene_plazo, a: "Plazo:rdf_pti_10dh"}
+  - {de: "Etapa:rdf_pti", rel: tiene_plazo, a: "Plazo:rdf_pti_12m"}
+  - {de: "Etapa:rdf_recurrente", rel: tiene_plazo, a: "Plazo:rdf_recurrente_5dh"}
+
+  # Etapas → artefactos producidos
+  - {de: "Etapa:rdf_recepcion", rel: produce, a: "Artefacto:F01"}
+  - {de: "Etapa:rdf_recepcion", rel: produce, a: "Artefacto:R01"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:A01"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:A02"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:R02"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:R03"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:R04"}
+  - {de: "Etapa:rdf_evaluacion", rel: produce, a: "Artefacto:F02"}
+  - {de: "Etapa:rdf_evaluacion", rel: produce, a: "Artefacto:F03"}
+  - {de: "Etapa:rdf_evaluacion", rel: produce, a: "Artefacto:INF03"}
+  - {de: "Etapa:rdf_evaluacion", rel: produce, a: "Artefacto:R05"}
+  - {de: "Etapa:rdf_evaluacion", rel: produce, a: "Artefacto:R11"}
+  - {de: "Etapa:rdf_pti", rel: produce, a: "Artefacto:PTI"}
+  - {de: "Etapa:rdf_pti", rel: produce, a: "Artefacto:R06"}
+  - {de: "Etapa:rdf_conclusion", rel: produce, a: "Artefacto:R07"}
+  - {de: "Etapa:rdf_valoracion", rel: produce, a: "Artefacto:F11"}
+
+  # Etapas → compuertas
+  - {de: "Etapa:rdf_recepcion", rel: decision, a: "Compuerta:rdf_recepcion_declinacion"}
+  - {de: "Etapa:rdf_valoracion", rel: decision, a: "Compuerta:rdf_valoracion_df"}
+  - {de: "Etapa:rdf_valoracion", rel: decision, a: "Compuerta:rdf_valoracion_riesgo"}
+  - {de: "Etapa:rdf_evaluacion", rel: decision, a: "Compuerta:rdf_evaluacion_df"}
+  - {de: "Etapa:rdf_evaluacion", rel: decision, a: "Compuerta:rdf_evaluacion_riesgo"}
+  - {de: "Etapa:rdf_evaluacion", rel: decision, a: "Compuerta:rdf_evaluacion_declinacion"}
+  - {de: "Etapa:rdf_pti", rel: decision, a: "Compuerta:rdf_pti_cierre"}
+
+  # Compuertas → derivaciones (etapa o actor)
+  - {de: "Compuerta:rdf_recepcion_declinacion", rel: deriva_a, a: "Etapa:rdf_evaluacion"}
+  - {de: "Compuerta:rdf_valoracion_riesgo", rel: deriva_a, a: "Etapa:rdf_evaluacion"}
+  - {de: "Compuerta:rdf_valoracion_df", rel: deriva_a, a: "Actor:upe"}
+  - {de: "Compuerta:rdf_evaluacion_df", rel: deriva_a, a: "Actor:upe"}
+  - {de: "Compuerta:rdf_evaluacion_riesgo", rel: deriva_a, a: "Etapa:rdf_pti"}
+  - {de: "Compuerta:rdf_evaluacion_declinacion", rel: deriva_a, a: "Etapa:rdf_conclusion"}
+  - {de: "Compuerta:rdf_pti_cierre", rel: deriva_a, a: "Etapa:rdf_conclusion"}
+
+  # Artefactos → fundamento legal
+  - {de: "Artefacto:A02", rel: fundamentado_en, a: "Articulo:dl1297_28"}
+  - {de: "Articulo:dl1297_28", rel: pertenece_a, a: "Norma:dl1297"}
+
+  # Plazos → norma que los define
+  - {de: "Plazo:rdf_medida_9m", rel: definido_por, a: "Norma:ley32017"}
+  - {de: "Plazo:rdf_pti_12m", rel: definido_por, a: "Norma:ley32017"}
+
+  # Medida → etapa
+  - {de: "Medida:rdf_proteccion", rel: dispuesta_en, a: "Etapa:rdf_pti"}
+
+  # Tipologías → clasificación y competencia
+  # Riesgo (convive con familia) → DEMUNA. Graves (sin cuidado parental) → UPE.
+  - {de: "Tipologia:t04", rel: clasifica_como, a: "Compuerta:rdf_valoracion_riesgo"}
+  - {de: "Tipologia:t05", rel: clasifica_como, a: "Compuerta:rdf_valoracion_riesgo"}
+  - {de: "Tipologia:t08", rel: clasifica_como, a: "Compuerta:rdf_valoracion_riesgo"}
+  - {de: "Tipologia:t01", rel: clasifica_como, a: "Compuerta:rdf_valoracion_df"}
+  - {de: "Tipologia:t02", rel: clasifica_como, a: "Compuerta:rdf_valoracion_df"}
+  - {de: "Tipologia:t09", rel: clasifica_como, a: "Compuerta:rdf_valoracion_df"}
+  - {de: "Tipologia:t10", rel: clasifica_como, a: "Compuerta:rdf_valoracion_df"}
+  - {de: "Tipologia:t04", rel: competencia_de, a: "Actor:demuna"}
+  - {de: "Tipologia:t05", rel: competencia_de, a: "Actor:demuna"}
+  - {de: "Tipologia:t08", rel: competencia_de, a: "Actor:demuna"}
+  - {de: "Tipologia:t01", rel: competencia_de, a: "Actor:upe"}
+  - {de: "Tipologia:t02", rel: competencia_de, a: "Actor:upe"}
+  - {de: "Tipologia:t09", rel: competencia_de, a: "Actor:upe"}
+  - {de: "Tipologia:t10", rel: competencia_de, a: "Actor:upe"}
+
+  # --- Flujo DF: etapas, actor ---------------------------------------------
+  - {de: "Actor:upe", rel: ejecuta, a: "Flujo:df"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_inicio"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_valoracion"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_evaluacion"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_declaracion_provisional"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_medidas"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_pti"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_acceso_expediente"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_transito_judicial"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_declaracion_judicial"}
+  - {de: "Flujo:df", rel: tiene_etapa, a: "Etapa:df_adoptabilidad"}
+
+  # --- Etapas DF → plazos ---------------------------------------------------
+  - {de: "Etapa:df_evaluacion", rel: tiene_plazo, a: "Plazo:df_evaluacion_5dh"}
+  - {de: "Etapa:df_pti", rel: tiene_plazo, a: "Plazo:df_pti_20dh"}
+  - {de: "Etapa:df_pti", rel: tiene_plazo, a: "Plazo:df_medida_18m"}
+  - {de: "Etapa:df_medidas", rel: tiene_plazo, a: "Plazo:df_car_urgencia_10dh"}
+  - {de: "Etapa:df_acceso_expediente", rel: tiene_plazo, a: "Plazo:df_acceso_5dh"}
+  - {de: "Etapa:df_acceso_expediente", rel: tiene_plazo, a: "Plazo:df_alegatos_3dh"}
+
+  # --- Etapas DF → artefactos ----------------------------------------------
+  - {de: "Etapa:df_declaracion_provisional", rel: produce, a: "Artefacto:df_res_provisional"}
+  - {de: "Etapa:df_pti", rel: produce, a: "Artefacto:df_pti"}
+  - {de: "Etapa:df_declaracion_judicial", rel: produce, a: "Artefacto:df_res_judicial"}
+
+  # --- Etapas DF → compuertas + derivaciones --------------------------------
+  - {de: "Etapa:df_medidas", rel: decision, a: "Compuerta:df_medida"}
+  - {de: "Etapa:df_declaracion_judicial", rel: decision, a: "Compuerta:df_judicial"}
+  - {de: "Compuerta:df_medida", rel: deriva_a, a: "Actor:car"}
+  - {de: "Compuerta:df_medida", rel: deriva_a, a: "Actor:banco_familias"}
+  - {de: "Compuerta:df_judicial", rel: deriva_a, a: "Etapa:df_adoptabilidad"}
+
+  # --- Medidas DF dispuestas en la etapa de medidas -------------------------
+  - {de: "Medida:df_acogimiento_familiar", rel: dispuesta_en, a: "Etapa:df_medidas"}
+  - {de: "Medida:df_acogimiento_residencial", rel: dispuesta_en, a: "Etapa:df_medidas"}
+
+  # --- Fundamento legal DF (artefacto/plazo → artículo → norma) -------------
+  - {de: "Artefacto:df_res_judicial", rel: fundamentado_en, a: "Articulo:dl1297_52"}
+  - {de: "Artefacto:df_res_provisional", rel: fundamentado_en, a: "Articulo:reg_67"}
+  - {de: "Plazo:df_evaluacion_5dh", rel: definido_por, a: "Articulo:reg_41"}
+  - {de: "Plazo:df_acceso_5dh", rel: definido_por, a: "Articulo:reg_66"}
+  - {de: "Plazo:df_alegatos_3dh", rel: definido_por, a: "Articulo:reg_66"}
+  - {de: "Plazo:df_medida_18m", rel: definido_por, a: "Norma:ley32017"}
+  - {de: "Articulo:dl1297_52", rel: pertenece_a, a: "Norma:dl1297"}
+  - {de: "Articulo:reg_41", rel: pertenece_a, a: "Norma:ds001_2018"}
+  - {de: "Articulo:reg_66", rel: pertenece_a, a: "Norma:ds001_2018"}
+  - {de: "Articulo:reg_67", rel: pertenece_a, a: "Norma:ds001_2018"}
+  - {de: "Articulo:reg_68", rel: pertenece_a, a: "Norma:ds001_2018"}

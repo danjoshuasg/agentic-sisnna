@@ -1,0 +1,104 @@
+# =============================================================================
+# Resolución N°04 — Inicia procedimiento por riesgo de desprotección familiar
+# Arquetipo: resolución-plantilla (prosa Jinja con boilerplate citado + slots).
+# Fuente fiel: CONTEXT/docs/resolucion-04.md
+# La FORMA (VISTO/CONSIDERANDO/SE RESUELVE) es estable; el CONTENIDO (citas,
+# tipologías, circunstancias, diligencias) se interpola → configurable.
+# =============================================================================
+
+codigo: R04
+nombre: "Resolución que inicia procedimiento por riesgo de desprotección familiar"
+tipo: resolucion
+flujo: [rdf]
+etapa: valoracion
+version: "2023.1"
+vigencia_desde: "2023-01-01"
+vigencia_hasta: null
+supersede: null
+base_legal: ["DL 1297 art. 3.f", "DL 1297 art. 11", "DS 001-2018-MIMP art. 6", "Ley 27972 art. 38"]
+requiere_firma: true
+firmantes: [responsable_demuna]
+interoperabilidad: true     # se hace de conocimiento del Ministerio Público
+salida:
+  formatos: [json, markdown]
+  plantilla: null           # null → usa la `plantilla` inline de la sección prosa
+
+secciones:
+
+  - id: cuerpo
+    titulo: null
+    tipo: prosa
+    slots:
+      - { id: numero_resolucion, origen: calculado }
+      - { id: anio,              origen: calculado }
+      - { id: codigo_demuna,     origen: expediente }
+      - { id: expediente,        origen: expediente }
+      - { id: lugar_fecha,       origen: calculado }
+      - { id: nna_nombre,        origen: campo, sensible: true, pii_tipo: NOMBRE_NNA }
+      - { id: nna_edad,          origen: campo, sensible: true, pii_tipo: EDAD }
+      - { id: nna_dni,           origen: campo, sensible: true, pii_tipo: DNI }
+      - { id: nna_domicilio,     origen: campo, sensible: true, pii_tipo: DIRECCION }
+      - { id: informe_valoracion_nro, origen: expediente }
+      - { id: acciones_valoracion,    origen: campo }   # lista
+      - { id: opinion_nna,            origen: campo }   # art. 28 DL 1297
+      - { id: tipologias,             origen: campo }   # lista, desde Anexo N°02
+      - { id: circunstancias,         origen: campo }   # lista
+      - { id: diligencias,            origen: campo }   # lista, plazo 5 días háb.
+    # Plantilla Jinja. Boilerplate legal fijo; {{ slots }} variables.
+    # autoescape activo en el motor; las listas se renderizan como viñetas.
+    plantilla: |
+      **RESOLUCIÓN N° {{ numero_resolucion }} - {{ anio }} - {{ codigo_demuna }}-DEMUNA**
+
+      Expediente N° {{ expediente }}
+
+      {{ lugar_fecha }}
+
+      **VISTO:**
+
+      El Informe de Valoración de Riesgo Nro. {{ informe_valoracion_nro }}, elaborado a
+      favor de la/el niña/o o adolescente {{ nna_nombre }}, de {{ nna_edad }} años de edad,
+      identificada(o) con DNI {{ nna_dni }}, con domicilio en {{ nna_domicilio }}; y
+
+      **CONSIDERANDO:**
+
+      Que, de conformidad con el inciso f) del artículo 3 del Decreto Legislativo N° 1297,
+      el riesgo de desprotección familiar es la situación en la que el ejercicio de los
+      derechos del NNA es amenazado o afectado, sin que se produzca la separación de su
+      familia de origen.
+
+      Que, de acuerdo al artículo 11 del Decreto Legislativo N° 1297 y el artículo 6 del
+      Decreto Supremo N° 001-2018-MIMP, la DEMUNA acreditada es la autoridad competente
+      para dar inicio a la actuación estatal ante situaciones de riesgo.
+
+      Que la DEMUNA realizó la valoración preliminar mediante:
+      {% for a in acciones_valoracion %}- {{ a }}
+      {% endfor %}
+      {% if opinion_nna %}(Se destaca lo expresado por el/la NNA conforme al último párrafo
+      del artículo 28 del D.Leg. 1297: {{ opinion_nna }}){% endif %}
+
+      Que se presume una situación de Riesgo de Desprotección Familiar, asociada a las
+      siguientes tipologías según la Tabla de Valoración de Riesgo:
+      {% for t in tipologias %}- {{ t }}
+      {% endfor %}
+      Que las circunstancias que determinan dicha presunción son:
+      {% for c in circunstancias %}- {{ c }}
+      {% endfor %}
+      De conformidad con el artículo 38 de la Ley N° 27972 y el Decreto Legislativo N° 1297
+      y su reglamento (DS N° 001-2018-MIMP);
+
+      **SE RESUELVE:**
+
+      **Artículo Primero.- INICIAR** el procedimiento por Riesgo de Desprotección Familiar
+      a favor de la/el NNA identificada/o con DNI {{ nna_dni }}.
+
+      **Artículo Segundo.- DISPONER** la evaluación dentro del plazo de cinco (05) días
+      hábiles, a fin que el equipo interdisciplinario realice:
+      {% for d in diligencias %}- {{ d }}
+      {% endfor %}
+      **Artículo Tercero.- HACER** de conocimiento del Ministerio Público la presente
+      resolución, para los fines de ley.
+
+      Regístrese, Comuníquese y Cúmplase.
+
+      _______________________________
+      Firma y sello de el/la Responsable y Sello de DEMUNA

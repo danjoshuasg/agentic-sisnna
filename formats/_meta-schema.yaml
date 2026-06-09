@@ -1,0 +1,139 @@
+# =============================================================================
+# META-SCHEMA — contrato que valida las definiciones de formato (formats/*.yaml)
+# =============================================================================
+# Expresado como JSON Schema (draft 2020-12) en YAML. El loader valida cada
+# definición contra esto en `make validate-formats` (CI gate).
+# Ver FORMATS-SPEC.md §4 para la explicación en prosa.
+# =============================================================================
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "sisnna://formats/meta-schema/1.0"
+title: "Definición de formato SISNNA"
+type: object
+required: [codigo, nombre, tipo, flujo, version, vigencia_desde, secciones, salida]
+additionalProperties: false
+
+properties:
+
+  codigo: { type: string, pattern: "^[A-Z]\\d{2}$|^[A-Z]+\\d+$" }   # A02, F01, R04, PTI
+  nombre: { type: string, minLength: 3 }
+  tipo: { enum: [ficha, informe, resolucion, plan] }
+  flujo:
+    type: array
+    items: { enum: [rdf, df, comun] }
+    minItems: 1
+  etapa: { type: [string, "null"] }
+  version: { type: string }                 # "2023.1", "2.0.0"
+  vigencia_desde: { type: string, format: date }
+  vigencia_hasta: { type: [string, "null"], format: date }
+  supersede: { type: [string, "null"] }     # "A02@2018.1"
+  base_legal:
+    type: array
+    items: { type: string }
+  requiere_firma: { type: boolean, default: false }
+  firmantes:
+    type: array
+    items: { enum: [defensor, abogado, psicologo, trabajador_social, responsable_demuna, juez, fiscal] }
+  interoperabilidad: { type: boolean, default: false }
+
+  salida:
+    type: object
+    required: [formatos]
+    additionalProperties: false
+    properties:
+      formatos:
+        type: array
+        items: { enum: [json, markdown, html, pdf] }
+        minItems: 1
+      plantilla: { type: [string, "null"] }   # ruta a Jinja override; null = renderer genérico
+
+  secciones:
+    type: array
+    minItems: 1
+    items: { $ref: "#/$defs/seccion" }
+
+# -----------------------------------------------------------------------------
+$defs:
+
+  seccion:
+    type: object
+    required: [id, tipo]
+    additionalProperties: false
+    properties:
+      id: { type: string, pattern: "^[a-z0-9_]+$" }
+      titulo: { type: [string, "null"] }
+      tipo: { enum: [grupo_campos, checklist, tabla, texto_libre, prosa] }
+      visible_si: { type: [string, "null"] }     # "campo == valor" | "campo in [a,b]"
+      repetible: { type: boolean, default: false }
+      min: { type: [integer, "null"], minimum: 0 }
+      max: { type: [integer, "null"], minimum: 1 }
+      # grupo_campos / texto_libre:
+      campos:
+        type: array
+        items: { $ref: "#/$defs/campo" }
+      campo: { $ref: "#/$defs/campo" }           # texto_libre: un solo campo
+      # checklist:
+      items:
+        type: array
+        items:
+          type: object
+          required: [id, texto]
+          additionalProperties: false
+          properties:
+            id: { type: string }
+            texto: { type: string }
+      # tabla:
+      columnas:
+        type: array
+        items:
+          type: object
+          required: [id, titulo, tipo]
+          properties:
+            id: { type: string }
+            titulo: { type: string }
+            tipo: { enum: [texto, booleano, enum] }
+      filas:
+        type: array
+        items:
+          type: object
+          required: [id, texto]
+          properties:
+            id: { type: string }
+            texto: { type: string }
+      # prosa (resoluciones):
+      plantilla: { type: [string, "null"] }       # Jinja inline o ref a archivo
+      slots:                                        # variables que la plantilla espera
+        type: array
+        items:
+          type: object
+          required: [id]
+          properties:
+            id: { type: string }
+            origen: { enum: [campo, expediente, catalogo, calculado] }
+            sensible: { type: boolean, default: false }
+            pii_tipo: { $ref: "#/$defs/pii_tipo" }
+
+  campo:
+    type: object
+    required: [id, tipo]
+    additionalProperties: false
+    properties:
+      id: { type: string, pattern: "^[a-z0-9_]+$" }
+      label: { type: [string, "null"] }
+      tipo: { enum: [texto, texto_largo, entero, fecha, booleano, enum, enum_multi, adjunto] }
+      requerido: { type: boolean, default: false }
+      sensible: { type: boolean, default: false }     # → gateway PII (SPEC §7)
+      pii_tipo: { $ref: "#/$defs/pii_tipo" }
+      patron: { type: [string, "null"] }              # regex
+      opciones:                                       # para enum / enum_multi
+        type: [array, "null"]
+        items: { type: string }
+      permite_otros: { type: boolean, default: false }
+      visible_si: { type: [string, "null"] }
+      ayuda: { type: [string, "null"] }
+
+  # Debe coincidir con el enum de tipos PII del gateway (app/security/gateway.py)
+  pii_tipo:
+    type: [string, "null"]
+    enum: [NOMBRE_NNA, NOMBRE_ADULTO, DNI, DIRECCION, DISTRITO, TELEFONO,
+           EDAD, FECHA_NAC, CORREO, INSTITUCION, CENTRO_SALUD, null]

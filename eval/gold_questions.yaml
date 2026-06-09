@@ -1,0 +1,186 @@
+# =============================================================================
+# GOLD QUESTIONS — eval del copiloto operador (RAG / experto)
+# Cada pregunta: cita esperada (verificable contra el corpus) + hechos clave.
+# Las marcadas `debe_rehusar: true` NO están soportadas por el corpus → el bot
+# debe responder "no está en el corpus", NO inventar.
+#
+# Métricas (eval/run_eval.py):
+#   - precision_citas: la cita esperada aparece entre las fuentes devueltas.
+#   - tasa_rechazo: las `debe_rehusar` efectivamente se rehúsan.
+#
+# Fuentes (source_path): CONTEXT/rdf-docs/flujo.md, CONTEXT/desproteccion-docs/flujo.md,
+#   CONTEXT/docs/anexo-02-valoracion-riesgo.md, formato-01-recepcion.md, resolucion-04.md
+# =============================================================================
+
+preguntas:
+
+  # --- RDF (copiloto_rdf) ---------------------------------------------------
+  - id: gq-001
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "¿Cuál es el plazo de la etapa de evaluación en el procedimiento por riesgo?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "3. EVALUACIÓN" }
+    respuesta_clave: "5 días hábiles."
+
+  - id: gq-002
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "Tras declarar el riesgo en evaluación, ¿qué resolución corresponde emitir?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "3. EVALUACIÓN" }
+    respuesta_clave: "Resolución N°05 (declara riesgo provisional); luego Formato N°11 y pasa a PTI."
+
+  - id: gq-003
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "Si en valoración hay presunción de desprotección familiar, ¿qué hago?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "2. VALORACIÓN" }
+    respuesta_clave: "Resolución N°02: no inicia riesgo y deriva a la UPE."
+
+  - id: gq-004
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "¿Cómo se codifica el expediente al recibir un caso?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "1. RECEPCIÓN" }
+    respuesta_clave: "N° Correlativo - Año - Código de acreditación de la DEMUNA."
+
+  - id: gq-005
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "¿Quién ejecuta el procedimiento por riesgo y con qué equipo mínimo?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "Actores" }
+    respuesta_clave: "La DEMUNA acreditada; equipo mínimo abogado + psicólogo (+ trabajador social)."
+
+  - id: gq-006
+    persona: operador
+    experto_esperado: copiloto_rdf
+    flujo: rdf
+    pregunta: "¿Cuál es el plazo máximo del PTI y de la medida en el procedimiento por riesgo?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/rdf-docs/flujo.md", ancla: "4. PTI" }
+    respuesta_clave: "Riesgo (Ley 32017): medida máx 9 meses, PTI máx 12 meses. El 18m del TDR es de desprotección, no de riesgo."
+
+  # --- DF (copiloto_df) -----------------------------------------------------
+  - id: gq-007
+    persona: operador
+    experto_esperado: copiloto_df
+    flujo: df
+    pregunta: "¿Qué pasa cuando la UPE declara la desprotección familiar provisional?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/desproteccion-docs/flujo.md", ancla: "Declaración de desprotección familiar PROVISIONAL" }
+    respuesta_clave: "Art. 67: la UPE asume la tutela estatal (Art. 11.f) y dispara las medidas de protección."
+
+  - id: gq-008
+    persona: operador
+    experto_esperado: copiloto_df
+    flujo: df
+    pregunta: "¿Cuál es la permanencia máxima de un NNA en un centro de acogida residencial de urgencia?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/desproteccion-docs/flujo.md", ancla: "Acogimiento residencial en CAR" }
+    respuesta_clave: "10 días hábiles (centro de urgencia, ≤10 NNA, 24/7)."
+
+  - id: gq-009
+    persona: operador
+    experto_esperado: copiloto_df
+    flujo: df
+    pregunta: "¿En cuántos días debe elaborarse el PTI en desprotección familiar?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/desproteccion-docs/flujo.md", ancla: "Plan de Trabajo Individual" }
+    respuesta_clave: "Máx 20 días hábiles desde la resolución de DF provisional (Arts. 42-47); aprobación 1 día hábil después (Art. 44)."
+
+  - id: gq-010
+    persona: operador
+    experto_esperado: copiloto_df
+    flujo: df
+    pregunta: "¿Quién declara judicialmente la desprotección familiar?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/desproteccion-docs/flujo.md", ancla: "Declaración JUDICIAL" }
+    respuesta_clave: "El Juzgado de Familia o Mixto (Art. 52 DL 1297)."
+
+  - id: gq-011
+    persona: operador
+    experto_esperado: copiloto_df
+    flujo: df
+    pregunta: "Plazos de acceso al expediente y alegatos antes de la vía judicial."
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/desproteccion-docs/flujo.md", ancla: "Acceso al expediente y alegatos" }
+    respuesta_clave: "Expediente a disposición 5 días hábiles; alegatos 3 días hábiles (Art. 66)."
+
+  # --- Formatos (formatos) --------------------------------------------------
+  - id: gq-012
+    persona: operador
+    experto_esperado: formatos
+    flujo: rdf
+    pregunta: "¿Cuántas tipologías tiene la tabla de valoración y cómo se clasifican?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/docs/anexo-02-valoracion-riesgo.md", ancla: "III. IDENTIFICACIÓN DE TIPOLOGÍAS" }
+    respuesta_clave: "11 tipologías; cada una se marca como Riesgo o Desprotección Familiar."
+
+  - id: gq-013
+    persona: operador
+    experto_esperado: formatos
+    flujo: rdf
+    pregunta: "¿Qué bloques de personas contiene la Ficha de Recepción (Formato N°01)?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/docs/formato-01-recepcion.md", ancla: "AFECTADO" }
+    respuesta_clave: "Informante/solicitante, afectado/a (1 o más), y presunto transgresor/obligado."
+
+  # --- Legal (legal) --------------------------------------------------------
+  - id: gq-014
+    persona: operador
+    experto_esperado: legal
+    flujo: rdf
+    pregunta: "¿Qué norma define el riesgo de desprotección familiar?"
+    debe_rehusar: false
+    cita_esperada: { source_path: "CONTEXT/docs/resolucion-04.md", ancla: "CONSIDERANDO" }
+    respuesta_clave: "Inciso f) del artículo 3 del Decreto Legislativo N° 1297."
+
+  # --- Casos que DEBEN rehusarse (fuera de corpus / dominio) ----------------
+  - id: gq-r01
+    persona: operador
+    experto_esperado: compliance
+    flujo: df
+    pregunta: "¿Cuál es el monto exacto en soles de la subvención económica del acogimiento?"
+    debe_rehusar: true
+    motivo: "El corpus menciona la subvención (Art. 96) pero no el monto. No inventar."
+
+  - id: gq-r02
+    persona: operador
+    experto_esperado: legal
+    flujo: indeterminado
+    pregunta: "Transcríbeme textualmente el artículo 5 del DL 1297."
+    debe_rehusar: true
+    motivo: "El texto íntegro de la ley no está en el corpus inicial (SPEC §11). Solo citas inline."
+
+  - id: gq-r03
+    persona: operador
+    experto_esperado: null
+    flujo: indeterminado
+    pregunta: "¿Cuántas DEMUNA acreditadas hay actualmente en Lima Metropolitana?"
+    debe_rehusar: true
+    motivo: "Dato estadístico no presente en el corpus."
+
+  - id: gq-r04
+    persona: operador
+    experto_esperado: null
+    flujo: indeterminado
+    pregunta: "¿Cómo configuro la integración con FIRMA PERÚ paso a paso?"
+    debe_rehusar: true
+    motivo: "Fuera de dominio (integraciones reales están fuera del PoC, SPEC §3)."
+
+  - id: gq-r05
+    persona: operador
+    experto_esperado: null
+    flujo: indeterminado
+    pregunta: "¿Quién es el ministro de la Mujer actualmente?"
+    debe_rehusar: true
+    motivo: "Conocimiento general fuera del corpus y del dominio."

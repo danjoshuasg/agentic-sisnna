@@ -1,0 +1,69 @@
+# =============================================================================
+# ROUTING SET — eval del router / gating (MoE)
+# Cada caso: query → RouteDecision esperada (intencion, flujo, expertos, top-k).
+# Ver ARCHITECTURE-AGENTIC.md §3-§4.
+#
+# Métrica (eval/run_eval.py):
+#   - routing_accuracy: el experto esperado está entre `expertos` que elige el router.
+#   - flujo_accuracy: `flujo` coincide.
+#   - rechazo: las `fuera_dominio` no invocan expertos.
+#
+# Nota: las queries entran al router YA des-identificadas (gateway PII primero).
+# =============================================================================
+
+casos:
+
+  # --- Despacho directo (k=1) ----------------------------------------------
+  - id: rt-001
+    query: "Tengo un niño que falta al colegio y llega sin comer, vive con su mamá. ¿Qué hago?"
+    esperado: { intencion: triaje, flujo: rdf, expertos: [triaje], top_k: 1 }
+
+  - id: rt-002
+    query: "¿Cuántos días tengo para la etapa de evaluación en riesgo?"
+    esperado: { intencion: consulta_procedimiento, flujo: rdf, expertos: [copiloto_rdf], top_k: 1 }
+
+  - id: rt-003
+    query: "¿Cuánto puede permanecer un NNA en un CAR de urgencia?"
+    esperado: { intencion: consulta_procedimiento, flujo: df, expertos: [copiloto_df], top_k: 1 }
+
+  - id: rt-004
+    query: "¿Qué artículo del DL 1297 fundamenta la tutela estatal de la UPE?"
+    esperado: { intencion: consulta_legal, flujo: df, expertos: [legal], top_k: 1 }
+
+  - id: rt-005
+    query: "¿Qué campos lleva el Formato N°01 de recepción?"
+    esperado: { intencion: consulta_formato, flujo: rdf, expertos: [formatos], top_k: 1 }
+
+  - id: rt-006
+    query: "¿Puedo enviar los datos del expediente del niño por correo a otra entidad?"
+    esperado: { intencion: consulta_compliance, flujo: comun, expertos: [compliance], top_k: 1 }
+
+  - id: rt-007
+    query: "Encontraron a una niña de 6 años sola en una casa abandonada hace 3 días, sin familia."
+    esperado: { intencion: triaje, flujo: df, expertos: [triaje], top_k: 1 }
+
+  # --- Ambigüedad / cruza flujos (k=2) -------------------------------------
+  - id: rt-008
+    query: "Empecé un caso por riesgo pero ahora detecto desprotección. ¿Cómo derivo a la UPE y qué plazos cambian?"
+    esperado: { intencion: consulta_procedimiento, flujo: ambos, expertos: [copiloto_rdf, copiloto_df], top_k: 2 }
+
+  - id: rt-009
+    query: "¿Qué plazo de PTI aplica, el de riesgo o el de desprotección? Son distintos por la Ley 32017."
+    esperado: { intencion: consulta_legal, flujo: ambos, expertos: [legal, copiloto_df], top_k: 2 }
+
+  - id: rt-010
+    query: "¿La resolución que inicia el riesgo en qué se fundamenta legalmente y qué campos lleva?"
+    esperado: { intencion: consulta_formato, flujo: rdf, expertos: [formatos, legal], top_k: 2 }
+
+  # --- Fuera de dominio → rehusar (sin expertos) ---------------------------
+  - id: rt-r01
+    query: "¿Qué clima hará mañana en Lima?"
+    esperado: { intencion: fuera_dominio, flujo: indeterminado, expertos: [], top_k: 0 }
+
+  - id: rt-r02
+    query: "Ayúdame a redactar un correo de ventas para mi negocio."
+    esperado: { intencion: fuera_dominio, flujo: indeterminado, expertos: [], top_k: 0 }
+
+  - id: rt-r03
+    query: "¿Cuál es la capital de Francia?"
+    esperado: { intencion: fuera_dominio, flujo: indeterminado, expertos: [], top_k: 0 }

@@ -1,0 +1,112 @@
+# =============================================================================
+# Anexo N°02 — Informe de valoración de riesgo
+# Arquetipo: ficha-tabla (tipologías × {Riesgo, Desprotección}) + grupo_campos.
+# Fuente fiel: CONTEXT/docs/anexo-02-valoracion-riesgo.md
+# Ata con el triaje (mock/casos_sinteticos.yaml usa estas tipologías t01..t11).
+# =============================================================================
+
+codigo: A02
+nombre: "Informe de valoración de riesgo"
+tipo: ficha
+flujo: [rdf]
+etapa: valoracion
+version: "2023.1"
+vigencia_desde: "2023-01-01"
+vigencia_hasta: null
+supersede: null
+base_legal: ["DL 1297 art. 28", "DS 001-2018-MIMP", "RM 189-2021-MIMP"]
+requiere_firma: true
+firmantes: [psicologo, trabajador_social, abogado]
+interoperabilidad: false
+salida:
+  formatos: [json, markdown]
+  plantilla: null
+
+secciones:
+
+  # I. Datos generales del NNA
+  - id: datos_nna
+    titulo: "I. Datos generales de la niña, niño o adolescente"
+    tipo: grupo_campos
+    campos:
+      - { id: nombres, label: "Nombres y apellidos", tipo: texto, requerido: true, sensible: true, pii_tipo: NOMBRE_NNA }
+      - { id: fecha_nac, label: "Fecha de nacimiento", tipo: fecha, sensible: true, pii_tipo: FECHA_NAC }
+      - { id: edad, label: "Edad", tipo: entero, requerido: true, sensible: true, pii_tipo: EDAD }
+      - { id: nacionalidad, label: "Nacionalidad", tipo: texto }
+      - { id: dni, label: "N° DNI u otro documento", tipo: texto, patron: '^\d{8}$', sensible: true, pii_tipo: DNI }
+      - { id: lengua, label: "Lengua/idioma/dialecto", tipo: texto }
+      - { id: sexo, label: "Sexo", tipo: enum, opciones: [hombre, mujer] }
+      - { id: discapacidad, label: "Discapacidad", tipo: enum, opciones: ["no", fisica, sensorial, mental], permite_otros: true }
+      - { id: direccion, label: "Dirección domiciliaria", tipo: texto, sensible: true, pii_tipo: DIRECCION }
+      - { id: distrito, label: "Distrito", tipo: texto, sensible: true, pii_tipo: DISTRITO }
+      - { id: provincia, label: "Provincia", tipo: texto }
+      - { id: departamento, label: "Departamento", tipo: texto }
+      - { id: tipo_familia, label: "Tipo de familia", tipo: enum, opciones: [nuclear, monoparental, compuesta, adoptiva], permite_otros: true }
+      - { id: asistencia_escolar, label: "Asistencia escolar", tipo: enum, opciones: [si, "no", no_corresponde] }
+      - { id: consumo_sustancias, label: "Consumo de sustancias psicoactivas", tipo: booleano }
+      - { id: enfermedades, label: "Enfermedades", tipo: texto_largo, sensible: true }
+
+  # II. Modalidad de ingreso
+  - id: modalidad_ingreso
+    titulo: "II. Modalidad de ingreso al servicio"
+    tipo: grupo_campos
+    campos:
+      - id: comunicado_por
+        label: "Comunicado por"
+        tipo: enum
+        opciones: [linea_100, cem, sau, ministerio_publico, pnp, equipo_atencion_urgente, demuna, inpe, establecimiento_salud, institucion_educativa]
+        permite_otros: true
+      - { id: doc_motiva, label: "Documento que motiva la valoración", tipo: texto_largo }
+
+  # III. Identificación de tipologías  (tabla: 11 tipologías × Riesgo/DF)
+  - id: tipologias
+    titulo: "III. Identificación de tipologías"
+    tipo: tabla
+    columnas:
+      - { id: riesgo, titulo: "Riesgo", tipo: booleano }
+      - { id: desproteccion, titulo: "Desprotección Familiar", tipo: booleano }
+    filas:
+      - { id: t01, texto: "Violencia sexual en la familia de origen" }
+      - { id: t02, texto: "Explotación sexual de NNA generada en la familia de origen" }
+      - { id: t03, texto: "Violencia física en la familia de origen" }
+      - { id: t04, texto: "Violencia psicológica en la familia de origen" }
+      - { id: t05, texto: "Trabajo de NNA con afectación de derechos" }
+      - { id: t06, texto: "Vida en calle" }
+      - { id: t07, texto: "Mendicidad" }
+      - { id: t08, texto: "Negligencia o descuido" }
+      - { id: t09, texto: "Trata de NNA desde la familia de origen" }
+      - { id: t10, texto: "Abandono" }
+      - { id: t11, texto: "Imposibilidad temporal o definitiva de progenitores" }
+
+  # IV. Características y necesidades (narrativa)
+  - id: caracteristicas
+    titulo: "IV. Características y necesidades del NNA"
+    tipo: texto_libre
+    campo:
+      id: descripcion
+      label: "Afectación por tipología, actitud y factores de riesgo/protección de la familia, necesidades inmediatas"
+      tipo: texto_largo
+      requerido: true
+      sensible: true
+
+  # V. Valoración global  (la decisión que el triaje emula)
+  - id: valoracion_global
+    titulo: "V. Valoración global"
+    tipo: grupo_campos
+    campos:
+      - id: conclusion
+        label: "Se concluye que el caso es"
+        tipo: enum
+        requerido: true
+        opciones: [no_hay_riesgo, hay_riesgo, hay_desproteccion_familiar]
+      - { id: amplio_plazo, label: "¿Se necesitó ampliar plazo para valorar?", tipo: booleano }
+
+  # VI. Recomendaciones
+  - id: recomendaciones
+    titulo: "VI. Recomendaciones"
+    tipo: texto_libre
+    campo:
+      id: texto
+      label: "El equipo interdisciplinario recomienda (inicio o no del procedimiento, acciones, otros)"
+      tipo: texto_largo
+      requerido: true

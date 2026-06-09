@@ -1,0 +1,50 @@
+# =============================================================================
+# ONTOLOGÍA del Knowledge Graph SISNNA
+# Define los TIPOS de nodo y arista (el meta-schema del grafo). Las instancias
+# (nodos/aristas concretos del dominio) van en kg/instances.yaml.
+# Ver ARCHITECTURE-AGENTIC.md §5.
+# =============================================================================
+
+version: "1.0"
+
+# --- Tipos de nodo ---------------------------------------------------------
+nodos:
+  Flujo:        { desc: "Procedimiento (RDF o DF)",                   campos: [id, nombre, ejecutor] }
+  Etapa:        { desc: "Fase de un flujo",                           campos: [id, nombre, orden, flujo] }
+  Artefacto:    { desc: "Documento producido (ficha/resolución/informe/PTI)", campos: [id, codigo, nombre, formato_ref] }
+  Actor:        { desc: "Entidad que interviene",                     campos: [id, nombre, nivel] }
+  Tipologia:    { desc: "Tipología de la Tabla de Valoración (t01..t11)", campos: [id, texto] }
+  SignoAlerta:  { desc: "Signo de alerta (Anexo N°01)",               campos: [id, categoria, texto] }
+  Medida:       { desc: "Medida de protección / acogimiento",         campos: [id, nombre, tipo] }
+  Plazo:        { desc: "Plazo legal",                                campos: [id, valor, unidad, descripcion] }
+  NormaLegal:   { desc: "Norma (DL/DS/Ley/RM)",                       campos: [id, nombre, anio] }
+  Articulo:     { desc: "Artículo de una norma",                      campos: [id, numero, norma] }
+  Compuerta:    { desc: "Punto de decisión del flujo",                campos: [id, pregunta] }
+
+# Todo nodo lleva además: source_path (trazabilidad), descripcion (para embedding de entrada).
+campos_comunes: [source_path, descripcion]
+
+# --- Tipos de arista (dirigidas) -------------------------------------------
+aristas:
+  tiene_etapa:      { de: Flujo,     a: Etapa }
+  produce:          { de: Etapa,     a: Artefacto }
+  tiene_plazo:      { de: Etapa,     a: Plazo }
+  decision:         { de: Etapa,     a: Compuerta }
+  deriva_a:         { de: Compuerta, a: [Etapa, Actor] }
+  fundamentado_en:  { de: Artefacto, a: Articulo }
+  definido_por:     { de: Plazo,     a: [NormaLegal, Articulo] }
+  indica:           { de: SignoAlerta, a: Tipologia }
+  clasifica_como:   { de: Tipologia, a: [Etapa, Compuerta], nota: "riesgo | desproteccion" }
+  competencia_de:   { de: Tipologia, a: Actor }
+  dispuesta_en:     { de: Medida,    a: Etapa }
+  ejecuta:          { de: Actor,     a: Flujo }
+  pertenece_a:      { de: Articulo,  a: NormaLegal }
+
+# --- Plantillas de traversal por intención del router ----------------------
+# Qué relaciones seguir y cuántos hops según la intención (context-skill, §6).
+traversal:
+  consulta_procedimiento: { relaciones: [tiene_etapa, produce, decision, deriva_a, tiene_plazo], hops: 2 }
+  consulta_legal:         { relaciones: [fundamentado_en, definido_por, pertenece_a],            hops: 2 }
+  consulta_formato:       { relaciones: [produce, fundamentado_en],                              hops: 1 }
+  consulta_compliance:    { relaciones: [tiene_plazo, definido_por, dispuesta_en],               hops: 2 }
+  triaje:                 { relaciones: [indica, clasifica_como, competencia_de],                hops: 2 }
